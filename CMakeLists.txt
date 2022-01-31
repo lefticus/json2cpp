@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Used as a tool to make sure that the standard used by tools
 # and by the projects cannot get out of sync
-set(USER_CXX_STANDARD 20)
+set(USER_CXX_STANDARD 17)
 
 # uncomment to set a default CXX standard for the external tools like clang-tidy and cppcheck
 # and the targets that do not specify a standard.

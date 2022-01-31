@@ -1,25 +1,22 @@
 #include <functional>
 #include <iostream>
+#include <filesystem>
+#include <fstream>
 
 #include <docopt/docopt.h>
 #include <spdlog/spdlog.h>
+#include <nlohmann/json.hpp>
 
 static constexpr auto USAGE =
-  R"(Naval Fate.
+  R"(json_compiler
 
     Usage:
-          naval_fate ship new <name>...
-          naval_fate ship <name> move <x> <y> [--speed=<kn>]
-          naval_fate ship shoot <x> <y>
-          naval_fate mine (set|remove) <x> <y> [--moored | --drifting]
-          naval_fate (-h | --help)
-          naval_fate --version
+          json_compiler <file_name>
+          json_compiler (-h | --help)
+          json_compiler --version
  Options:
           -h --help     Show this screen.
           --version     Show version.
-          --speed=<kn>  Speed in knots [default: 10].
-          --moored      Moored (anchored) mine.
-          --drifting    Drifting mine.
 )";
 
 int main(int argc, const char **argv)
@@ -28,16 +25,19 @@ int main(int argc, const char **argv)
     std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
       { std::next(argv), std::next(argv, argc) },
       true,// show help if requested
-      "Naval Fate 2.0");// version string
+      "json_compiler 0.1");// version string
 
-    for (auto const &arg : args) { std::cout << arg.first << "=" << arg.second << '\n'; }
+    std::filesystem::path filename = args.at("<file_name>").asString();
+    spdlog::info("Loading file: '{}'", filename.native());
+
+    std::ifstream input(filename);
+    nlohmann::json document;
+    input >> document;
+
+    spdlog::info("File loaded");
 
 
-    // Use the default logger (stdout, multi-threaded, colored)
-    spdlog::info("Hello, {}!", "World");
-
-    fmt::print("Hello, from {}\n", "{fmt}");
   } catch (const std::exception &e) {
-    fmt::print("Unhandled exception in main: {}", e.what());
+    spdlog::error("Unhandled exception in main: {}", e.what());
   }
 }
