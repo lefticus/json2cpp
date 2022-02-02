@@ -103,7 +103,7 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
 
 compile_results compile(const std::string_view document_name, const std::filesystem::path &filename)
 {
-  spdlog::info("Loading file: '{}'", filename.native());
+  spdlog::info("Loading file: '{}'", filename.string());
 
   std::ifstream input(filename);
   nlohmann::json document;
