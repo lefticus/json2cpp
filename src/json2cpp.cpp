@@ -133,7 +133,7 @@ void write_compilation([[maybe_unused]] std::string_view document_name,
   for (const auto &line : results.impl) { impl << line << '\n'; }
 
   std::ofstream cpp(cpp_name);
-  cpp << fmt::format("#include \"{}\"\n", impl_name.filename().native());
+  cpp << fmt::format("#include \"{}\"\n", impl_name.filename().string());
 }
 
 void compile_to(const std::string_view document_name,
