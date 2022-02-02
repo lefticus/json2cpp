@@ -32,13 +32,13 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 
 
     lines.push_back(
-      fmt::format("static constexpr std::array<constexpr_json::json, {}> object_data_{} = {{", entries.size(), current_object_number));
+      fmt::format("static constexpr std::array<constexpr_json::json, {}> object_data_{} = {{{{", entries.size(), current_object_number));
 
     std::transform(entries.begin(), entries.end(), std::back_inserter(lines), [](const auto &entry) {
       return fmt::format("  {}", entry);
     });
 
-    lines.emplace_back("};");
+    lines.emplace_back("}};");
 
     return fmt::format("constexpr_json::array_t{{object_data_{}}}", current_object_number);
 
