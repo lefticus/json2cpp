@@ -1,14 +1,30 @@
 #include <catch2/catch.hpp>
+#include "test_json.hpp"
 
-unsigned int Factorial(unsigned int number)// NOLINT(misc-no-recursion)
+TEST_CASE("Can read object size")
 {
-  return number <= 1 ? number : Factorial(number - 1) * number;
+  const auto &document = compiled_json::test_json::get_test_json();
+
+  REQUIRE(document.size() == 1);
 }
 
-TEST_CASE("Factorials are computed", "[factorial]")
+
+TEST_CASE("Can iterate object")
 {
-  REQUIRE(Factorial(1) == 1);
-  REQUIRE(Factorial(2) == 2);
-  REQUIRE(Factorial(3) == 6);
-  REQUIRE(Factorial(10) == 3628800);
+  const auto &document = compiled_json::test_json::get_test_json();
+
+  std::size_t elements = 0;
+  for (const auto &json : document) {
+    REQUIRE(!json.is_null());
+    ++elements;
+  }
+
+  REQUIRE(elements == document.size());
 }
+
+TEST_CASE("Can read iterator key")
+{
+  const auto &document = compiled_json::test_json::get_test_json();
+  REQUIRE(document.begin().key() == "glossary");
+}
+

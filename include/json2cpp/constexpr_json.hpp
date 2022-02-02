@@ -2,17 +2,17 @@
 #define CONSTEXPR_JSON_HPP_INCLUDED
 
 #include <array>
+#include <cassert>
 #include <cstdint>
 #include <stdexcept>
 #include <string_view>
 #include <variant>
-#include <cassert>
 
 namespace constexpr_json {
 template<typename T> struct span
 {
   template<std::size_t Size>
-  constexpr span(const std::array<T, Size> &input) : begin_{ &*input.begin() }, end_{ &*input.end() }
+  constexpr explicit span(const std::array<T, Size> &input) : begin_{ &*input.begin() }, end_{ &*input.end() }
   {}
 
   constexpr const T *begin() const { return begin_; }
@@ -24,6 +24,8 @@ template<typename T> struct span
   const T *begin_;
   const T *end_;
 };
+
+template<typename T, std::size_t Size> span(const std::array<T, Size> &) -> span<T>;
 
 struct json;
 
@@ -38,10 +40,10 @@ struct json
 {
   struct iterator
   {
-    constexpr iterator(const json &value, bool end = false)
+    constexpr explicit iterator(const json &value, bool end = false)
       : parent_value_(&value), is_object_{ value.is_object() }, is_array_{ value.is_array() }
     {
-      if (end == false) {
+      if (end == true) {
         if (is_array_) {
           index_ = value.array().size();
         } else if (is_object_) {
@@ -55,9 +57,9 @@ struct json
       if (is_array_) {
         return (*parent_value_)[index_];
       } else if (is_object_) {
-        return std::next(parent_value_->object().begin(), index_)->second;
+        return std::next(parent_value_->object().begin(), static_cast<std::ptrdiff_t>(index_))->second;
       } else {
-        throw std::runtime_error("json value is neither object nor array, it cannot be iterated");
+        return *parent_value_;
       }
     }
 
@@ -66,9 +68,9 @@ struct json
     constexpr std::string_view key() const
     {
       if (is_object_) {
-        return std::next(parent_value_->object().begin(), index_)->first;
+        return std::next(parent_value_->object().begin(), static_cast<std::ptrdiff_t>(index_))->first;
       } else {
-        throw std::runtime_error("json value is neither object nor array, it cannot be iterated");
+        throw std::runtime_error("json value is not an object, it has no key");
       }
     }
 
@@ -76,6 +78,11 @@ struct json
     {
       return other.parent_value_ == parent_value_ && other.index_ == index_;
     }
+    constexpr bool operator!=(const iterator &other) const
+    {
+      return !(*this == other);
+    }
+
 
     constexpr bool operator<(const iterator &other) const
     {
@@ -111,10 +118,25 @@ struct json
 
   constexpr iterator cend() const { return end(); }
 
+  constexpr std::size_t size() const noexcept {
+    if (is_null()) {
+      return 0;
+    }
+    if (is_object()) {
+      return std::get_if<object_t>(&data)->size();
+    }
+
+    if (is_array()) {
+      return std::get_if<array_t>(&data)->size();
+    }
+
+    return 1;
+  }
+
   constexpr const json &operator[](const std::size_t idx) const
   {
     if (const auto &children = array(); children.size() < idx) {
-      return *std::next(children.begin(), idx);
+      return *std::next(children.begin(), static_cast<std::ptrdiff_t>(idx));
     } else {
       throw std::runtime_error("index out of range");
     }
@@ -124,7 +146,9 @@ struct json
   {
     const auto &children = object();
 
+    // find_if is not constexpr yet in C++17
     for (const auto &value : children) {
+      // cppcheck-suppress useStlAlgorithm
       if (value.first == key) { return value.second; }
     }
 

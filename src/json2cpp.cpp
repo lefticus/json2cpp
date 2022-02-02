@@ -23,7 +23,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 
     lines.emplace_back("};");
 
-    return fmt::format("constexpr_json::json{{object_data_{}}}", current_object_number);
+    return fmt::format("constexpr_json::json{{constexpr_json::span{{object_data_{}}}}}", current_object_number);
   } else if (value.is_array()) {
     std::vector<std::string> entries;
     std::transform(value.begin(), value.end(), std::back_inserter(entries), [&](const auto &child) {
@@ -40,7 +40,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 
     lines.emplace_back("};");
 
-    return fmt::format("constexpr_json::json{{object_data_{}}}", current_object_number);
+    return fmt::format("constexpr_json::json{{constexpr_json::span{{object_data_{}}}}}", current_object_number);
 
 
   } else if (value.is_number_float()) {

@@ -7,7 +7,18 @@ add_library(catch_main OBJECT catch_main.cpp)
 target_link_libraries(catch_main PUBLIC Catch2::Catch2)
 target_link_libraries(catch_main PRIVATE project_options)
 
-add_executable(tests tests.cpp)
+set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/test_json")
+add_custom_command(
+  DEPENDS json2cpp
+  OUTPUT "${BASE_NAME}_impl.hpp" "${BASE_NAME}.hpp" "${BASE_NAME}.cpp"
+  COMMAND json2cpp "test_json" "${CMAKE_SOURCE_DIR}/examples/test.json" "${BASE_NAME}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+
+add_executable(tests tests.cpp "${BASE_NAME}.cpp")
+target_include_directories(tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
 target_link_libraries(tests PRIVATE project_warnings project_options catch_main)
 
 # automatically discover tests that are defined in catch based test files you can modify the unittests. Set TEST_PREFIX
@@ -26,8 +37,11 @@ catch_discover_tests(
   .xml)
 
 # Add a file containing a set of constexpr tests
-add_executable(constexpr_tests constexpr_tests.cpp)
+add_executable(constexpr_tests constexpr_tests.cpp "${BASE_NAME}_impl.hpp")
 target_link_libraries(constexpr_tests PRIVATE project_options project_warnings catch_main)
+target_include_directories(constexpr_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(constexpr_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
 
 catch_discover_tests(
   constexpr_tests
@@ -44,9 +58,12 @@ catch_discover_tests(
 
 # Disable the constexpr portion of the test, and build again this allows us to have an executable that we can debug when
 # things go wrong with the constexpr testing
-add_executable(relaxed_constexpr_tests constexpr_tests.cpp)
+add_executable(relaxed_constexpr_tests constexpr_tests.cpp "${BASE_NAME}_impl.hpp")
 target_link_libraries(relaxed_constexpr_tests PRIVATE project_options project_warnings catch_main)
 target_compile_definitions(relaxed_constexpr_tests PRIVATE -DCATCH_CONFIG_RUNTIME_STATIC_REQUIRE)
+target_include_directories(relaxed_constexpr_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(relaxed_constexpr_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
 
 catch_discover_tests(
   relaxed_constexpr_tests
