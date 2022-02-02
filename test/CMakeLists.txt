@@ -77,3 +77,61 @@ catch_discover_tests(
   "relaxed_constexpr."
   OUTPUT_SUFFIX
   .xml)
+
+
+
+
+
+set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/schema")
+add_custom_command(
+  DEPENDS json2cpp
+  OUTPUT "${BASE_NAME}_impl.hpp" "${BASE_NAME}.hpp" "${BASE_NAME}.cpp"
+  COMMAND json2cpp "schema" "${CMAKE_SOURCE_DIR}/examples/Energy+.schema.epJSON" "${BASE_NAME}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+
+# Add a file containing a set of constexpr_schema tests
+add_executable(constexpr_schema_tests constexpr_schema_tests.cpp "${BASE_NAME}_impl.hpp")
+target_link_libraries(constexpr_schema_tests PRIVATE project_options project_warnings catch_main)
+target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
+
+catch_discover_tests(
+  constexpr_schema_tests
+  TEST_PREFIX
+  "constexpr_schema."
+  REPORTER
+  xml
+  OUTPUT_DIR
+  .
+  OUTPUT_PREFIX
+  "constexpr_schema."
+  OUTPUT_SUFFIX
+  .xml)
+
+# Disable the constexpr_schema portion of the test, and build again this allows us to have an executable that we can debug when
+# things go wrong with the constexpr_schema testing
+add_executable(relaxed_constexpr_schema_tests constexpr_schema_tests.cpp "${BASE_NAME}_impl.hpp")
+target_link_libraries(relaxed_constexpr_schema_tests PRIVATE project_options project_warnings catch_main)
+target_compile_definitions(relaxed_constexpr_schema_tests PRIVATE -DCATCH_CONFIG_RUNTIME_STATIC_REQUIRE)
+target_include_directories(relaxed_constexpr_schema_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(relaxed_constexpr_schema_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
+
+catch_discover_tests(
+  relaxed_constexpr_schema_tests
+  TEST_PREFIX
+  "relaxed_constexpr_schema."
+  REPORTER
+  xml
+  OUTPUT_DIR
+  .
+  OUTPUT_PREFIX
+  "relaxed_constexpr_schema."
+  OUTPUT_SUFFIX
+  .xml)
+
+
+
+
