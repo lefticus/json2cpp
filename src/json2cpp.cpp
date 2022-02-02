@@ -11,7 +11,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
     std::vector<std::string> pairs;
     for (auto itr = value.begin(); itr != value.end(); ++itr) {
       pairs.push_back(fmt::format(
-        "constexpr_json::value_pair_t{{std::string_view{{{}}}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
+        "constexpr_json::value_pair_t{{{}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
     }
 
     lines.push_back(fmt::format(
