@@ -96,6 +96,8 @@ target_link_libraries(constexpr_schema_tests PRIVATE project_options project_war
 target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
+# disable analysis for these very large generated bits of code
+set_target_properties(constexpr_schema_tests PROPERTIES CXX_CPPCHECK "" CXX_CLANG_TIDY "")
 
 catch_discover_tests(
   constexpr_schema_tests
@@ -117,6 +119,10 @@ target_link_libraries(relaxed_constexpr_schema_tests PRIVATE project_options pro
 target_compile_definitions(relaxed_constexpr_schema_tests PRIVATE -DCATCH_CONFIG_RUNTIME_STATIC_REQUIRE)
 target_include_directories(relaxed_constexpr_schema_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(relaxed_constexpr_schema_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
+# disable analysis for these very large generated bits of code
+set_target_properties(relaxed_constexpr_schema_tests PROPERTIES CXX_CPPCHECK "" CXX_CLANG_TIDY "")
+
 
 
 catch_discover_tests(

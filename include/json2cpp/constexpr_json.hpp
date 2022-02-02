@@ -9,6 +9,12 @@
 #include <variant>
 
 namespace constexpr_json {
+template<typename First, typename Second> struct pair
+{
+  First first;
+  Second second;
+};
+
 template<typename T> struct span
 {
   template<std::size_t Size>
@@ -28,7 +34,8 @@ template<typename T> struct span
 struct json;
 
 using array_t = span<json>;
-using object_t = span<std::pair<std::string_view, json>>;
+using value_pair_t = pair<std::string_view, json>;
+using object_t = span<value_pair_t>;
 using binary_t = span<std::uint8_t>;
 
 using data_t = std::
@@ -76,10 +83,7 @@ struct json
     {
       return other.parent_value_ == parent_value_ && other.index_ == index_;
     }
-    constexpr bool operator!=(const iterator &other) const
-    {
-      return !(*this == other);
-    }
+    constexpr bool operator!=(const iterator &other) const { return !(*this == other); }
 
 
     constexpr bool operator<(const iterator &other) const
@@ -116,17 +120,12 @@ struct json
 
   constexpr iterator cend() const { return end(); }
 
-  constexpr std::size_t size() const noexcept {
-    if (is_null()) {
-      return 0;
-    }
-    if (is_object()) {
-      return std::get_if<object_t>(&data)->size();
-    }
+  constexpr std::size_t size() const noexcept
+  {
+    if (is_null()) { return 0; }
+    if (is_object()) { return std::get_if<object_t>(&data)->size(); }
 
-    if (is_array()) {
-      return std::get_if<array_t>(&data)->size();
-    }
+    if (is_array()) { return std::get_if<array_t>(&data)->size(); }
 
     return 1;
   }
@@ -185,16 +184,28 @@ struct json
 
   constexpr double as_number_float() const
   {
-    if (const double *value = std::get_if<double>(&data); value != nullptr) { return *value; }
+    if (const double *value = std::get_if<double>(&data); value != nullptr) {
+      return *value;
+    } else {
+      throw std::runtime_error("Not a float type");
+    }
   }
   constexpr double as_boolean() const
   {
-    if (const bool *value = std::get_if<bool>(&data); value != nullptr) { return *value; }
+    if (const bool *value = std::get_if<bool>(&data); value != nullptr) {
+      return *value;
+    } else {
+      throw std::runtime_error("Not a boolean type");
+    }
   }
 
   constexpr std::string_view as_string() const
   {
-    if (const auto *value = std::get_if<std::string_view>(&data); value != nullptr) { return *value; }
+    if (const auto *value = std::get_if<std::string_view>(&data); value != nullptr) {
+      return *value;
+    } else {
+      throw std::runtime_error("Not a string type");
+    }
   }
 
   constexpr operator double() const { return as_number_float(); }
@@ -219,7 +230,6 @@ struct json
   data_t data;
 };
 
-using value_pair_t = std::pair<std::string_view, json>;
 }// namespace constexpr_json
 
 #endif
