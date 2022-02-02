@@ -5,13 +5,13 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 {
   const auto current_object_number = obj_count++;
 
-  const auto json_string = [](const auto &str) { return fmt::format("R\"json_string({})json_string\"", str); };
+  const auto json_string = [](const auto &str) { return fmt::format("R\"string({})string\"", str); };
 
   if (value.is_object()) {
     std::vector<std::string> pairs;
     for (auto itr = value.begin(); itr != value.end(); ++itr) {
       pairs.push_back(fmt::format(
-        "constexpr_json::value_pair_t{{std::string_view{{{}}}, {}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
+        "constexpr_json::value_pair_t{{std::string_view{{{}}}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
     }
 
     lines.push_back(fmt::format(
@@ -23,7 +23,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 
     lines.emplace_back("};");
 
-    return fmt::format("constexpr_json::json{{constexpr_json::span{{object_data_{}}}}}", current_object_number);
+    return fmt::format("constexpr_json::object_t{{object_data_{}}}", current_object_number);
   } else if (value.is_array()) {
     std::vector<std::string> entries;
     std::transform(value.begin(), value.end(), std::back_inserter(entries), [&](const auto &child) {
@@ -40,19 +40,19 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 
     lines.emplace_back("};");
 
-    return fmt::format("constexpr_json::json{{constexpr_json::span{{object_data_{}}}}}", current_object_number);
+    return fmt::format("constexpr_json::array_t{{object_data_{}}}", current_object_number);
 
 
   } else if (value.is_number_float()) {
-    return fmt::format("constexpr_json::json{{constexpr_json::data_t{{double{{{}}}}}}}", value.get<double>());
+    return fmt::format("double{{{}}}", value.get<double>());
   } else if (value.is_number_unsigned()) {
-    return fmt::format("constexpr_json::json{{constexpr_json::data_t{{std::uint64_t{{{}}}}}}}", value.get<std::uint64_t>());
+    return fmt::format("std::uint64_t{{{}}}", value.get<std::uint64_t>());
   } else if (value.is_number() && !value.is_number_unsigned()) {
-    return fmt::format("constexpr_json::json{{constexpr_json::data_t{{std::int64_t{{{}}}}}}}", value.get<std::uint64_t>());
+    return fmt::format("std::int64_t{{{}}}", value.get<std::uint64_t>());
   } else if (value.is_boolean()) {
-    return fmt::format("constexpr_json::json{{constexpr_json::data_t{{bool{{{}}}}}}}", value.get<bool>());
+    return fmt::format("bool{{{}}}", value.get<bool>());
   } else if (value.is_string()) {
-    return fmt::format("constexpr_json::json{{constexpr_json::data_t{{std::string_view{{{}}}}}}}", json_string(value.get<std::string>()));
+    return fmt::format("std::string_view{{{}}}", json_string(value.get<std::string>()));
   }
 
   return "unhandled";
@@ -89,7 +89,7 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
 
   const auto last_obj_name = compile(json, obj_count, results.impl);
 
-  results.impl.push_back(fmt::format("static constexpr auto document = {};", last_obj_name));
+  results.impl.push_back(fmt::format("static constexpr auto document = constexpr_json::json{{{}}};", last_obj_name));
 
   results.impl.push_back(fmt::format("constexpr_json::json get_{}() {{ return document; }}", document_name));
   results.impl.emplace_back("}");

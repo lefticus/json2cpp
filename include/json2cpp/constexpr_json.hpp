@@ -25,8 +25,6 @@ template<typename T> struct span
   const T *end_;
 };
 
-template<typename T, std::size_t Size> span(const std::array<T, Size> &) -> span<T>;
-
 struct json;
 
 using array_t = span<json>;
