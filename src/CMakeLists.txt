@@ -4,9 +4,9 @@ find_package(docopt CONFIG)
 find_package(nlohmann_json CONFIG)
 
 # Generic test that uses conan libs
-add_executable(intro main.cpp json_compiler.cpp)
+add_executable(json2cpp main.cpp json2cpp.cpp)
 target_link_libraries(
-  intro
+  json2cpp
   PRIVATE project_options
           project_warnings
           docopt::docopt

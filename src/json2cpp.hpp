@@ -1,5 +1,5 @@
-#ifndef JSON_COMPILER_HPP
-#define JSON_COMPILER_HPP
+#ifndef JSON2CPP_HPP
+#define JSON2CPP_HPP
 
 #include <vector>
 #include <string>

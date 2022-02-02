@@ -5,16 +5,16 @@
 
 #include <docopt/docopt.h>
 #include <spdlog/spdlog.h>
-#include "json_compiler.hpp"
+#include "json2cpp.hpp"
 
 
 static constexpr auto USAGE =
-  R"(json_compiler
+  R"(json2cpp
 
     Usage:
-          json_compiler <document_name> <file_name> <output_base_name>
-          json_compiler (-h | --help)
-          json_compiler --version
+          json2cpp <document_name> <file_name> <output_base_name>
+          json2cpp (-h | --help)
+          json2cpp --version
  Options:
           -h --help     Show this screen.
           --version     Show version.
@@ -27,7 +27,7 @@ int main(int argc, const char **argv)
     std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
       { std::next(argv), std::next(argv, argc) },
       true,// show help if requested
-      "json_compiler 0.0.1");// version string
+      "json2cpp 0.0.1");// version string
 
     std::string document_name = args.at("<document_name>").asString();
     std::filesystem::path filename = args.at("<file_name>").asString();

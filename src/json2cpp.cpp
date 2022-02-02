@@ -1,4 +1,4 @@
-#include "json_compiler.hpp"
+#include "json2cpp.hpp"
 #include <fstream>
 
 std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::vector<std::string> &lines)
@@ -68,7 +68,7 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
   results.hpp.push_back(fmt::format("#ifndef {}_COMPILED_JSON", document_name));
   results.hpp.push_back(fmt::format("#define {}_COMPILED_JSON", document_name));
 
-  results.hpp.emplace_back("#include <json_compiler/constexpr_json.hpp>");
+  results.hpp.emplace_back("#include <json2cpp/constexpr_json.hpp>");
 
   results.hpp.push_back(fmt::format("namespace compiled_json::{} {{", document_name));
   results.hpp.push_back(fmt::format("  constexpr_json::json get_{}();", document_name));
@@ -82,7 +82,7 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
   results.impl.push_back(fmt::format("#ifndef {}_COMPILED_JSON_IMPL", document_name));
   results.impl.push_back(fmt::format("#define {}_COMPILED_JSON_IMPL", document_name));
 
-  results.impl.emplace_back("#include <json_compiler/constexpr_json.hpp>");
+  results.impl.emplace_back("#include <json2cpp/constexpr_json.hpp>");
 
   results.impl.push_back(fmt::format("namespace compiled_json::{} {{", document_name));
 
