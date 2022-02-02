@@ -27,7 +27,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
   } else if (value.is_array()) {
     std::vector<std::string> entries;
     std::transform(value.begin(), value.end(), std::back_inserter(entries), [&](const auto &child) {
-      return fmt::format("{},", compile(child, obj_count, lines));
+      return fmt::format("{{{}}},", compile(child, obj_count, lines));
     });
 
 
