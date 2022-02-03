@@ -6,6 +6,7 @@ docopt.cpp/0.6.3
 fmt/8.1.1
 spdlog/1.9.2
 nlohmann_json/3.10.5
+valijson/0.6
 # imgui-sfml/2.5@bincrafters/stable
 # sdl2/2.0.1
 
