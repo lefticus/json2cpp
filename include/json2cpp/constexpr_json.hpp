@@ -22,6 +22,8 @@ template<typename T> struct span
     : begin_{ input.data() }, end_{ std::next(input.data(), Size) }
   {}
 
+  constexpr span() : begin_{ nullptr }, end_{ nullptr } {}
+
   constexpr const T *begin() const { return begin_; }
 
   constexpr const T *end() const { return end_; }
@@ -51,9 +53,9 @@ struct json
     {
       if (end == true) {
         if (is_array_) {
-          index_ = value.array().size();
+          index_ = value.array_data().size();
         } else if (is_object_) {
-          index_ = value.object().size();
+          index_ = value.object_data().size();
         }
       }
     }
@@ -63,18 +65,25 @@ struct json
       if (is_array_) {
         return (*parent_value_)[index_];
       } else if (is_object_) {
-        return std::next(parent_value_->object().begin(), static_cast<std::ptrdiff_t>(index_))->second;
+        return std::next(parent_value_->object_data().begin(), static_cast<std::ptrdiff_t>(index_))->second;
       } else {
         return *parent_value_;
       }
     }
 
+    constexpr const json *operator->() const {
+      return &(*(*this));
+    }
+
     constexpr std::size_t index() const { return index_; }
+
+    constexpr const json &value() const { return *(*this); }
+
 
     constexpr std::string_view key() const
     {
       if (is_object_) {
-        return std::next(parent_value_->object().begin(), static_cast<std::ptrdiff_t>(index_))->first;
+        return std::next(parent_value_->object_data().begin(), static_cast<std::ptrdiff_t>(index_))->first;
       } else {
         throw std::runtime_error("json value is not an object, it has no key");
       }
@@ -93,6 +102,19 @@ struct json
       return index_ < other.index_;
     }
 
+    constexpr iterator &operator--()
+    {
+      --index_;
+      return *this;
+    }
+
+    constexpr iterator operator--(int)
+    {
+      iterator result{ *this };
+      index_--;
+      return result;
+    }
+
     constexpr iterator &operator++()
     {
       ++index_;
@@ -106,12 +128,27 @@ struct json
       return result;
     }
 
+    constexpr iterator &operator+=(const std::ptrdiff_t value)
+    {
+      index_ = static_cast<std::size_t>(static_cast<std::ptrdiff_t>(index_) + value);
+      return *this;
+    }
+
+
+    constexpr iterator &operator+=(const std::size_t value)
+    {
+      index_ += value;
+      return *this;
+    }
+
     const json *parent_value_{ nullptr };
 
     std::size_t index_{ 0 };
     bool is_object_{ false };
     bool is_array_{ false };
   };
+
+  using const_iterator = iterator;
 
   constexpr iterator begin() const { return iterator{ *this }; }
 
@@ -133,16 +170,28 @@ struct json
 
   constexpr const json &operator[](const std::size_t idx) const
   {
-    if (const auto &children = array(); children.size() < idx) {
+    if (const auto &children = array_data(); children.size() < idx) {
       return *std::next(children.begin(), static_cast<std::ptrdiff_t>(idx));
     } else {
       throw std::runtime_error("index out of range");
     }
   }
 
+  constexpr iterator find(const std::string_view key) const 
+  {
+    for (auto itr = begin(); itr != end(); ++itr)
+    {
+      if (itr.key() == key) {
+        return itr;
+      }
+    }
+
+    return end();
+  }
+
   constexpr const json &operator[](const std::string_view key) const
   {
-    const auto &children = object();
+    const auto &children = object_data();
 
     // find_if is not constexpr yet in C++17
     for (const auto &value : children) {
@@ -153,7 +202,7 @@ struct json
     throw std::runtime_error("Key not found");
   }
 
-  constexpr const array_t &array() const
+  constexpr const array_t &array_data() const
   {
     if (const auto *result = std::get_if<array_t>(&data); result != nullptr) {
       return *result;
@@ -162,13 +211,39 @@ struct json
     }
   }
 
-  constexpr const object_t &object() const
+  constexpr const object_t &object_data() const
   {
     if (const auto *result = std::get_if<object_t>(&data); result != nullptr) {
       return *result;
     } else {
       throw std::runtime_error("value is not an object type");
     }
+  }
+
+  constexpr static json object() { return json{ object_t{} }; }
+
+  constexpr static json array() { return json{ array_t{} }; }
+
+
+  template<typename Type> constexpr Type get() const
+  {
+    if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t>) {
+      if (const auto *uint_value = std::get_if<std::uint64_t>(&data); uint_value != nullptr) {
+        return Type(*uint_value);
+      } else if (const auto *value = std::get_if<std::int64_t>(&data); value != nullptr) {
+        return Type(*value);
+      }
+    } else if constexpr (std::is_same_v<Type, double>) {
+      if (const auto *value = std::get_if<double>(&data); value != nullptr) { return *value; }
+    } else if constexpr (std::is_same_v<Type, std::string_view>) {
+      if (const auto *value = std::get_if<std::string_view>(&data); value != nullptr) { return *value; }
+    } else if constexpr (std::is_same_v<Type, bool>) {
+      if (const auto *value = std::get_if<bool>(&data); value != nullptr) { return *value; }
+    } else {
+      throw std::runtime_error("Unexpected type for get()");
+    }
+
+    throw std::runtime_error("Incorrect type for get()");
   }
 
   constexpr bool is_object() const noexcept { return std::holds_alternative<object_t>(data); }

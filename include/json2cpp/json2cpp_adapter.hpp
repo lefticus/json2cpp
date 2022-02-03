@@ -1,23 +1,23 @@
 /**
  * @file
  *
- * @brief   Adapter implementation for the nlohmann json parser library.
+ * @brief   Adapter implementation for the json2cpp json parser library.
  *
- * Include this file in your program to enable support for nlohmann json.
+ * Include this file in your program to enable support for json2cpp json.
  *
  * This file defines the following classes (not in this order):
- *  - NlohmannJsonAdapter
- *  - NlohmannJsonArray
- *  - NlohmannJsonValueIterator
- *  - NlohmannJsonFrozenValue
- *  - NlohmannJsonObject
- *  - NlohmannJsonObjectMember
- *  - NlohmannJsonObjectMemberIterator
- *  - NlohmannJsonValue
+ *  - json2cppJsonAdapter
+ *  - json2cppJsonArray
+ *  - json2cppJsonValueIterator
+ *  - json2cppJsonFrozenValue
+ *  - json2cppJsonObject
+ *  - json2cppJsonObjectMember
+ *  - json2cppJsonObjectMemberIterator
+ *  - json2cppJsonValue
  *
  * Due to the dependencies that exist between these classes, the ordering of
  * class declarations and definitions may be a bit confusing. The best place to
- * start is NlohmannJsonAdapter. This class definition is actually very small,
+ * start is json2cppJsonAdapter. This class definition is actually very small,
  * since most of the functionality is inherited from the BasicAdapter class.
  * Most of the classes in this file are provided as template arguments to the
  * inherited BasicAdapter class.
@@ -26,7 +26,7 @@
 #pragma once
 
 #include <string>
-#include <nlohmann/json.hpp>
+#include <json2cpp/constexpr_json.hpp>
 
 #include <valijson/adapters/adapter.hpp>
 #include <valijson/adapters/basic_adapter.hpp>
@@ -37,44 +37,44 @@
 namespace valijson {
 namespace adapters {
 
-class NlohmannJsonAdapter;
-class NlohmannJsonArrayValueIterator;
-class NlohmannJsonObjectMemberIterator;
+class json2cppJsonAdapter;
+class json2cppJsonArrayValueIterator;
+class json2cppJsonObjectMemberIterator;
 
-typedef std::pair<std::string, NlohmannJsonAdapter> NlohmannJsonObjectMember;
+typedef std::pair<std::string, json2cppJsonAdapter> json2cppJsonObjectMember;
 
 /**
- * @brief  Light weight wrapper for a NlohmannJson array value.
+ * @brief  Light weight wrapper for a json2cppJson array value.
  *
- * This class is light weight wrapper for a NlohmannJson array. It provides a
+ * This class is light weight wrapper for a json2cppJson array. It provides a
  * minimum set of container functions and typedefs that allow it to be used as
  * an iterable container.
  *
  * An instance of this class contains a single reference to the underlying
- * NlohmannJson value, assumed to be an array, so there is very little overhead
+ * json2cppJson value, assumed to be an array, so there is very little overhead
  * associated with copy construction and passing by value.
  */
-class NlohmannJsonArray
+class json2cppJsonArray
 {
 public:
 
-    typedef NlohmannJsonArrayValueIterator const_iterator;
-    typedef NlohmannJsonArrayValueIterator iterator;
+    typedef json2cppJsonArrayValueIterator const_iterator;
+    typedef json2cppJsonArrayValueIterator iterator;
 
-    /// Construct a NlohmannJsonArray referencing an empty array.
-    NlohmannJsonArray()
+    /// Construct a json2cppJsonArray referencing an empty array.
+    json2cppJsonArray()
       : m_value(emptyArray()) { }
 
     /**
-     * @brief   Construct a NlohmannJsonArray referencing a specific NlohmannJson
+     * @brief   Construct a json2cppJsonArray referencing a specific json2cppJson
      *          value.
      *
-     * @param   value   reference to a NlohmannJson value
+     * @param   value   reference to a json2cppJson value
      *
      * Note that this constructor will throw an exception if the value is not
      * an array.
      */
-    NlohmannJsonArray(const nlohmann::json &value)
+    explicit json2cppJsonArray(const constexpr_json::json &value)
       : m_value(value)
     {
         if (!value.is_array()) {
@@ -86,17 +86,17 @@ public:
      * @brief   Return an iterator for the first element of the array.
      *
      * The iterator return by this function is effectively the iterator
-     * returned by the underlying NlohmannJson implementation.
+     * returned by the underlying json2cppJson implementation.
      */
-    NlohmannJsonArrayValueIterator begin() const;
+    json2cppJsonArrayValueIterator begin() const;
 
     /**
      * @brief   Return an iterator for one-past the last element of the array.
      *
      * The iterator return by this function is effectively the iterator
-     * returned by the underlying NlohmannJson implementation.
+     * returned by the underlying json2cppJson implementation.
      */
-    NlohmannJsonArrayValueIterator end() const;
+    json2cppJsonArrayValueIterator end() const;
 
     /// Return the number of elements in the array
     size_t size() const
@@ -107,52 +107,52 @@ public:
 private:
 
     /**
-     * @brief   Return a reference to a NlohmannJson value that is an empty array.
+     * @brief   Return a reference to a json2cppJson value that is an empty array.
      *
      * Note that the value returned by this function is a singleton.
      */
-    static const nlohmann::json & emptyArray()
+    static const constexpr_json::json & emptyArray()
     {
-        static const nlohmann::json array = nlohmann::json::array();
+        static const constexpr_json::json array = constexpr_json::json::array();
         return array;
     }
 
     /// Reference to the contained value
-    const nlohmann::json &m_value;
+    const constexpr_json::json &m_value;
 };
 
 /**
- * @brief  Light weight wrapper for a NlohmannJson object.
+ * @brief  Light weight wrapper for a json2cppJson object.
  *
- * This class is light weight wrapper for a NlohmannJson object. It provides a
+ * This class is light weight wrapper for a json2cppJson object. It provides a
  * minimum set of container functions and typedefs that allow it to be used as
  * an iterable container.
  *
  * An instance of this class contains a single reference to the underlying
- * NlohmannJson value, assumed to be an object, so there is very little overhead
+ * json2cppJson value, assumed to be an object, so there is very little overhead
  * associated with copy construction and passing by value.
  */
-class NlohmannJsonObject
+class json2cppJsonObject
 {
 public:
 
-    typedef NlohmannJsonObjectMemberIterator const_iterator;
-    typedef NlohmannJsonObjectMemberIterator iterator;
+    typedef json2cppJsonObjectMemberIterator const_iterator;
+    typedef json2cppJsonObjectMemberIterator iterator;
 
-    /// Construct a NlohmannJsonObject referencing an empty object singleton.
-    NlohmannJsonObject()
+    /// Construct a json2cppJsonObject referencing an empty object singleton.
+    json2cppJsonObject()
       : m_value(emptyObject()) { }
 
     /**
-     * @brief   Construct a NlohmannJsonObject referencing a specific NlohmannJson
+     * @brief   Construct a json2cppJsonObject referencing a specific json2cppJson
      *          value.
      *
-     * @param   value  reference to a NlohmannJson value
+     * @param   value  reference to a json2cppJson value
      *
      * Note that this constructor will throw an exception if the value is not
      * an object.
      */
-    NlohmannJsonObject(const nlohmann::json &value)
+    explicit json2cppJsonObject(const constexpr_json::json &value)
       : m_value(value)
     {
         if (!value.is_object()) {
@@ -164,18 +164,18 @@ public:
      * @brief   Return an iterator for this first object member
      *
      * The iterator return by this function is effectively a wrapper around
-     * the iterator value returned by the underlying NlohmannJson implementation.
+     * the iterator value returned by the underlying json2cppJson implementation.
      */
-    NlohmannJsonObjectMemberIterator begin() const;
+    json2cppJsonObjectMemberIterator begin() const;
 
     /**
      * @brief   Return an iterator for an invalid object member that indicates
      *          the end of the collection.
      *
      * The iterator return by this function is effectively a wrapper around
-     * the iterator value returned by the underlying NlohmannJson implementation.
+     * the iterator value returned by the underlying json2cppJson implementation.
      */
-    NlohmannJsonObjectMemberIterator end() const;
+    json2cppJsonObjectMemberIterator end() const;
 
     /**
      * @brief   Return an iterator for the object member with the specified
@@ -186,7 +186,7 @@ public:
      *
      * @param   propertyName  property name to search for
      */
-    NlohmannJsonObjectMemberIterator find(const std::string &propertyName) const;
+    json2cppJsonObjectMemberIterator find(const std::string_view propertyName) const;
 
     /// Returns the number of members belonging to this object.
     size_t size() const
@@ -197,62 +197,62 @@ public:
 private:
 
     /**
-     * @brief   Return a reference to a NlohmannJson value that is empty object.
+     * @brief   Return a reference to a json2cppJson value that is empty object.
      *
      * Note that the value returned by this function is a singleton.
      */
-    static const nlohmann::json & emptyObject()
+    static const constexpr_json::json & emptyObject()
     {
-        static const nlohmann::json object = nlohmann::json::object();
+        static const constexpr_json::json object = constexpr_json::json::object();
         return object;
     }
 
     /// Reference to the contained object
-    const nlohmann::json &m_value;
+    const constexpr_json::json &m_value;
 };
 
 
 /**
- * @brief   Stores an independent copy of a NlohmannJson value.
+ * @brief   Stores an independent copy of a json2cppJson value.
  *
- * This class allows a NlohmannJson value to be stored independent of its original
- * document. NlohmannJson makes this easy to do, as it does not perform any
+ * This class allows a json2cppJson value to be stored independent of its original
+ * document. json2cppJson makes this easy to do, as it does not perform any
  * custom memory management.
  *
  * @see FrozenValue
  */
-class NlohmannJsonFrozenValue: public FrozenValue
+class json2cppJsonFrozenValue: public FrozenValue
 {
 public:
 
     /**
-     * @brief  Make a copy of a NlohmannJson value
+     * @brief  Make a copy of a json2cppJson value
      *
-     * @param  source  the NlohmannJson value to be copied
+     * @param  source  the json2cppJson value to be copied
      */
-    explicit NlohmannJsonFrozenValue(nlohmann::json source)
+    explicit json2cppJsonFrozenValue(constexpr_json::json source)
       : m_value(std::move(source)) { }
 
     FrozenValue * clone() const override
     {
-        return new NlohmannJsonFrozenValue(m_value);
+        return new json2cppJsonFrozenValue(m_value);
     }
 
     bool equalTo(const Adapter &other, bool strict) const override;
 
 private:
 
-    /// Stored NlohmannJson value
-    nlohmann::json m_value;
+    /// Stored json2cppJson value
+    constexpr_json::json m_value;
 };
 
 
 /**
- * @brief   Light weight wrapper for a NlohmannJson value.
+ * @brief   Light weight wrapper for a json2cppJson value.
  *
  * This class is passed as an argument to the BasicAdapter template class,
- * and is used to provide access to a NlohmannJson value. This class is responsible
- * for the mechanics of actually reading a NlohmannJson value, whereas the
+ * and is used to provide access to a json2cppJson value. This class is responsible
+ * for the mechanics of actually reading a json2cppJson value, whereas the
  * BasicAdapter class is responsible for the semantics of type comparisons
  * and conversions.
  *
@@ -261,43 +261,43 @@ private:
  *
  * @see BasicAdapter
  */
-class NlohmannJsonValue
+class json2cppJsonValue
 {
 public:
 
     /// Construct a wrapper for the empty object singleton
-    NlohmannJsonValue()
+    json2cppJsonValue()
       : m_value(emptyObject()) { }
 
-    /// Construct a wrapper for a specific NlohmannJson value
-    NlohmannJsonValue(const nlohmann::json &value)
+    /// Construct a wrapper for a specific json2cppJson value
+    explicit json2cppJsonValue(const constexpr_json::json &value)
       : m_value(value) { }
 
     /**
-     * @brief   Create a new NlohmannJsonFrozenValue instance that contains the
-     *          value referenced by this NlohmannJsonValue instance.
+     * @brief   Create a new json2cppJsonFrozenValue instance that contains the
+     *          value referenced by this json2cppJsonValue instance.
      *
-     * @returns pointer to a new NlohmannJsonFrozenValue instance, belonging to the
+     * @returns pointer to a new json2cppJsonFrozenValue instance, belonging to the
      *          caller.
      */
     FrozenValue * freeze() const
     {
-        return new NlohmannJsonFrozenValue(m_value);
+        return new json2cppJsonFrozenValue(m_value);
     }
 
     /**
-     * @brief   Optionally return a NlohmannJsonArray instance.
+     * @brief   Optionally return a json2cppJsonArray instance.
      *
-     * If the referenced NlohmannJson value is an array, this function will return
-     * a std::optional containing a NlohmannJsonArray instance referencing the
+     * If the referenced json2cppJson value is an array, this function will return
+     * a std::optional containing a json2cppJsonArray instance referencing the
      * array.
      *
      * Otherwise it will return an empty optional.
      */
-    opt::optional<NlohmannJsonArray> getArrayOptional() const
+    opt::optional<json2cppJsonArray> getArrayOptional() const
     {
         if (m_value.is_array()) {
-            return opt::make_optional(NlohmannJsonArray(m_value));
+            return opt::make_optional(json2cppJsonArray(m_value));
         }
 
         return {};
@@ -306,7 +306,7 @@ public:
     /**
      * @brief   Retrieve the number of elements in the array
      *
-     * If the referenced NlohmannJson value is an array, this function will
+     * If the referenced json2cppJson value is an array, this function will
      * retrieve the number of elements in the array and store it in the output
      * variable provided.
      *
@@ -354,18 +354,18 @@ public:
     }
 
     /**
-     * @brief   Optionally return a NlohmannJsonObject instance.
+     * @brief   Optionally return a json2cppJsonObject instance.
      *
-     * If the referenced NlohmannJson value is an object, this function will return a
-     * std::optional containing a NlohmannJsonObject instance referencing the
+     * If the referenced json2cppJson value is an object, this function will return a
+     * std::optional containing a json2cppJsonObject instance referencing the
      * object.
      *
      * Otherwise it will return an empty optional.
      */
-    opt::optional<NlohmannJsonObject> getObjectOptional() const
+    opt::optional<json2cppJsonObject> getObjectOptional() const
     {
         if (m_value.is_object()) {
-            return opt::make_optional(NlohmannJsonObject(m_value));
+            return opt::make_optional(json2cppJsonObject(m_value));
         }
 
         return {};
@@ -374,7 +374,7 @@ public:
     /**
      * @brief   Retrieve the number of members in the object
      *
-     * If the referenced NlohmannJson value is an object, this function will
+     * If the referenced json2cppJson value is an object, this function will
      * retrieve the number of members in the object and store it in the output
      * variable provided.
      *
@@ -395,7 +395,7 @@ public:
     bool getString(std::string &result) const
     {
         if (m_value.is_string()) {
-            result = m_value.get<std::string>();
+            result = m_value.get<std::string_view>();
             return true;
         }
 
@@ -450,18 +450,18 @@ public:
 private:
 
     /// Return a reference to an empty object singleton
-    static const nlohmann::json & emptyObject()
+    static const constexpr_json::json & emptyObject()
     {
-        static const nlohmann::json object = nlohmann::json::object();
+        static const constexpr_json::json object = constexpr_json::json::object();
         return object;
     }
 
-    /// Reference to the contained NlohmannJson value.
-    const nlohmann::json &m_value;
+    /// Reference to the contained json2cppJson value.
+    const constexpr_json::json &m_value;
 };
 
 /**
- * @brief   An implementation of the Adapter interface supporting NlohmannJson.
+ * @brief   An implementation of the Adapter interface supporting json2cppJson.
  *
  * This class is defined in terms of the BasicAdapter template class, which
  * helps to ensure that all of the Adapter implementations behave consistently.
@@ -469,60 +469,60 @@ private:
  * @see Adapter
  * @see BasicAdapter
  */
-class NlohmannJsonAdapter:
-    public BasicAdapter<NlohmannJsonAdapter,
-        NlohmannJsonArray,
-        NlohmannJsonObjectMember,
-        NlohmannJsonObject,
-        NlohmannJsonValue>
+class json2cppJsonAdapter:
+    public BasicAdapter<json2cppJsonAdapter,
+        json2cppJsonArray,
+        json2cppJsonObjectMember,
+        json2cppJsonObject,
+        json2cppJsonValue>
 {
 public:
-    /// Construct a NlohmannJsonAdapter that contains an empty object
-    NlohmannJsonAdapter()
+    /// Construct a json2cppJsonAdapter that contains an empty object
+    json2cppJsonAdapter()
       : BasicAdapter() { }
 
-    /// Construct a NlohmannJsonAdapter containing a specific Nlohmann Json object
-    NlohmannJsonAdapter(const nlohmann::json &value)
-      : BasicAdapter(NlohmannJsonValue{value}) { }
+    /// Construct a json2cppJsonAdapter containing a specific json2cpp Json object
+    explicit json2cppJsonAdapter(const constexpr_json::json &value)
+      : BasicAdapter(json2cppJsonValue{value}) { }
 };
 
 /**
  * @brief   Class for iterating over values held in a JSON array.
  *
  * This class provides a JSON array iterator that dereferences as an instance of
- * NlohmannJsonAdapter representing a value stored in the array. It has been
+ * json2cppJsonAdapter representing a value stored in the array. It has been
  * implemented using the boost iterator_facade template.
  *
- * @see NlohmannJsonArray
+ * @see json2cppJsonArray
  */
-class NlohmannJsonArrayValueIterator
+class json2cppJsonArrayValueIterator
 {
 public:
     using iterator_category = std::bidirectional_iterator_tag;
-    using value_type = NlohmannJsonAdapter;
-    using difference_type = NlohmannJsonAdapter;
-    using pointer = NlohmannJsonAdapter*;
-    using reference = NlohmannJsonAdapter&;
+    using value_type = json2cppJsonAdapter;
+    using difference_type = json2cppJsonAdapter;
+    using pointer = json2cppJsonAdapter*;
+    using reference = json2cppJsonAdapter&;
 
     /**
-     * @brief   Construct a new NlohmannJsonArrayValueIterator using an existing
-     *          NlohmannJson iterator.
+     * @brief   Construct a new json2cppJsonArrayValueIterator using an existing
+     *          json2cppJson iterator.
      *
-     * @param   itr  NlohmannJson iterator to store
+     * @param   itr  json2cppJson iterator to store
      */
-    NlohmannJsonArrayValueIterator(const nlohmann::json::const_iterator &itr)
+    explicit json2cppJsonArrayValueIterator(const constexpr_json::json::const_iterator &itr)
       : m_itr(itr) { }
 
-    /// Returns a NlohmannJsonAdapter that contains the value of the current
+    /// Returns a json2cppJsonAdapter that contains the value of the current
     /// element.
-    NlohmannJsonAdapter operator*() const
+    json2cppJsonAdapter operator*() const
     {
-        return NlohmannJsonAdapter(*m_itr);
+        return json2cppJsonAdapter(*m_itr);
     }
 
-    DerefProxy<NlohmannJsonAdapter> operator->() const
+    DerefProxy<json2cppJsonAdapter> operator->() const
     {
-        return DerefProxy<NlohmannJsonAdapter>(**this);
+        return DerefProxy<json2cppJsonAdapter>(**this);
     }
 
     /**
@@ -536,33 +536,33 @@ public:
      *
      * @returns true   if the iterators are equal, false otherwise.
      */
-    bool operator==(const NlohmannJsonArrayValueIterator &other) const
+    bool operator==(const json2cppJsonArrayValueIterator &other) const
     {
         return m_itr == other.m_itr;
     }
 
-    bool operator!=(const NlohmannJsonArrayValueIterator &other) const
+    bool operator!=(const json2cppJsonArrayValueIterator &other) const
     {
         return !(m_itr == other.m_itr);
     }
 
-    const NlohmannJsonArrayValueIterator& operator++()
+    const json2cppJsonArrayValueIterator& operator++()
     {
-        m_itr++;
+        ++m_itr;
 
         return *this;
     }
 
-    NlohmannJsonArrayValueIterator operator++(int)
+    json2cppJsonArrayValueIterator operator++(int)
     {
-        NlohmannJsonArrayValueIterator iterator_pre(m_itr);
+        json2cppJsonArrayValueIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
-    const NlohmannJsonArrayValueIterator& operator--()
+    const json2cppJsonArrayValueIterator& operator--()
     {
-        m_itr--;
+        --m_itr;
 
         return *this;
     }
@@ -573,7 +573,7 @@ public:
     }
 
 private:
-    nlohmann::json::const_iterator m_itr;
+    constexpr_json::json::const_iterator m_itr;
 };
 
 
@@ -581,41 +581,41 @@ private:
  * @brief   Class for iterating over the members belonging to a JSON object.
  *
  * This class provides a JSON object iterator that dereferences as an instance
- * of NlohmannJsonObjectMember representing one of the members of the object. It
+ * of json2cppJsonObjectMember representing one of the members of the object. It
  * has been implemented using the boost iterator_facade template.
  *
- * @see NlohmannJsonObject
- * @see NlohmannJsonObjectMember
+ * @see json2cppJsonObject
+ * @see json2cppJsonObjectMember
  */
-class NlohmannJsonObjectMemberIterator
+class json2cppJsonObjectMemberIterator
 {
 public:
     using iterator_category = std::bidirectional_iterator_tag;
-    using value_type = NlohmannJsonObjectMember;
-    using difference_type = NlohmannJsonObjectMember;
-    using pointer = NlohmannJsonObjectMember*;
-    using reference = NlohmannJsonObjectMember&;
+    using value_type = json2cppJsonObjectMember;
+    using difference_type = json2cppJsonObjectMember;
+    using pointer = json2cppJsonObjectMember*;
+    using reference = json2cppJsonObjectMember&;
 
     /**
-     * @brief   Construct an iterator from a NlohmannJson iterator.
+     * @brief   Construct an iterator from a json2cppJson iterator.
      *
-     * @param   itr  NlohmannJson iterator to store
+     * @param   itr  json2cppJson iterator to store
      */
-    NlohmannJsonObjectMemberIterator(const nlohmann::json::const_iterator &itr)
+    explicit json2cppJsonObjectMemberIterator(const constexpr_json::json::const_iterator &itr)
       : m_itr(itr) { }
 
     /**
-     * @brief   Returns a NlohmannJsonObjectMember that contains the key and value
+     * @brief   Returns a json2cppJsonObjectMember that contains the key and value
      *          belonging to the object member identified by the iterator.
      */
-    NlohmannJsonObjectMember operator*() const
+    json2cppJsonObjectMember operator*() const
     {
-        return NlohmannJsonObjectMember(m_itr.key(), m_itr.value());
+        return json2cppJsonObjectMember(m_itr.key(), m_itr.value());
     }
 
-    DerefProxy<NlohmannJsonObjectMember> operator->() const
+    DerefProxy<json2cppJsonObjectMember> operator->() const
     {
-        return DerefProxy<NlohmannJsonObjectMember>(**this);
+        return DerefProxy<json2cppJsonObjectMember>(**this);
     }
 
     /**
@@ -629,84 +629,84 @@ public:
      *
      * @returns true if the underlying iterators are equal, false otherwise
      */
-    bool operator==(const NlohmannJsonObjectMemberIterator &other) const
+    bool operator==(const json2cppJsonObjectMemberIterator &other) const
     {
         return m_itr == other.m_itr;
     }
 
-    bool operator!=(const NlohmannJsonObjectMemberIterator &other) const
+    bool operator!=(const json2cppJsonObjectMemberIterator &other) const
     {
         return !(m_itr == other.m_itr);
     }
 
-    const NlohmannJsonObjectMemberIterator& operator++()
+    const json2cppJsonObjectMemberIterator& operator++()
     {
-        m_itr++;
+        ++m_itr;
 
         return *this;
     }
 
-    NlohmannJsonObjectMemberIterator operator++(int)
+    json2cppJsonObjectMemberIterator operator++(int)
     {
-        NlohmannJsonObjectMemberIterator iterator_pre(m_itr);
+        json2cppJsonObjectMemberIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
-    const NlohmannJsonObjectMemberIterator& operator--()
+    const json2cppJsonObjectMemberIterator& operator--()
     {
-        m_itr--;
+        --m_itr;
 
         return *this;
     }
 
 private:
 
-    /// Iternal copy of the original NlohmannJson iterator
-    nlohmann::json::const_iterator m_itr;
+    /// Iternal copy of the original json2cppJson iterator
+    constexpr_json::json::const_iterator m_itr;
 };
 
-/// Specialisation of the AdapterTraits template struct for NlohmannJsonAdapter.
+/// Specialisation of the AdapterTraits template struct for json2cppJsonAdapter.
 template<>
-struct AdapterTraits<valijson::adapters::NlohmannJsonAdapter>
+struct AdapterTraits<valijson::adapters::json2cppJsonAdapter>
 {
-    typedef nlohmann::json DocumentType;
+    typedef constexpr_json::json DocumentType;
 
     static std::string adapterName()
     {
-        return "NlohmannJsonAdapter";
+        return "json2cppJsonAdapter";
     }
 };
 
-inline bool NlohmannJsonFrozenValue::equalTo(const Adapter &other, bool strict) const
+inline bool json2cppJsonFrozenValue::equalTo(const Adapter &other, bool strict) const
 {
-    return NlohmannJsonAdapter(m_value).equalTo(other, strict);
+    return json2cppJsonAdapter(m_value).equalTo(other, strict);
 }
 
-inline NlohmannJsonArrayValueIterator NlohmannJsonArray::begin() const
+inline json2cppJsonArrayValueIterator json2cppJsonArray::begin() const
 {
-    return m_value.begin();
+    return json2cppJsonArrayValueIterator{m_value.begin()};
 }
 
-inline NlohmannJsonArrayValueIterator NlohmannJsonArray::end() const
+inline json2cppJsonArrayValueIterator json2cppJsonArray::end() const
 {
-    return m_value.end();
+    return json2cppJsonArrayValueIterator{m_value.end()};
 }
 
-inline NlohmannJsonObjectMemberIterator NlohmannJsonObject::begin() const
+inline json2cppJsonObjectMemberIterator json2cppJsonObject::begin() const
 {
-    return m_value.begin();
+    return json2cppJsonObjectMemberIterator {m_value.begin()};
 }
 
-inline NlohmannJsonObjectMemberIterator NlohmannJsonObject::end() const
+inline json2cppJsonObjectMemberIterator json2cppJsonObject::end() const
 {
-    return m_value.end();
+    return json2cppJsonObjectMemberIterator {m_value.end()};
 }
 
-inline NlohmannJsonObjectMemberIterator NlohmannJsonObject::find(
-        const std::string &propertyName) const
+inline json2cppJsonObjectMemberIterator json2cppJsonObject::find(
+        const std::string_view propertyName) const
 {
-    return m_value.find(propertyName);
+    return json2cppJsonObjectMemberIterator{m_value.find(propertyName)};
 }
 
 }  // namespace adapters

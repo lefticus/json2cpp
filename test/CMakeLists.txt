@@ -1,4 +1,5 @@
 find_package(Catch2 REQUIRED)
+find_package(ValiJSON REQUIRED)
 
 include(CTest)
 include(Catch)
@@ -34,6 +35,37 @@ catch_discover_tests(
   "unittests."
   OUTPUT_SUFFIX
   .xml)
+
+
+
+
+
+add_executable(valijson_tests valijson_tests.cpp)
+target_include_directories(valijson_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(valijson_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
+target_link_libraries(valijson_tests PRIVATE project_warnings project_options catch_main ValiJSON::valijson)
+
+# automatically discover tests that are defined in catch based test files you can modify the unittests. Set TEST_PREFIX
+# to whatever you want, or use different for different binaries
+catch_discover_tests(
+  valijson_tests
+  TEST_PREFIX
+  "unittests."
+  REPORTER
+  xml
+  OUTPUT_DIR
+  .
+  OUTPUT_PREFIX
+  "unittests."
+  OUTPUT_SUFFIX
+  .xml)
+
+
+
+
+
+
 
 # Add a file containing a set of constexpr tests
 add_executable(constexpr_tests constexpr_tests.cpp "${BASE_NAME}_impl.hpp")
