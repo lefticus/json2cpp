@@ -39,8 +39,29 @@ catch_discover_tests(
 
 
 
+set(SCHEMA_BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/allof_integers_and_numbers.schema")
+add_custom_command(
+  DEPENDS json2cpp
+  OUTPUT "${SCHEMA_BASE_NAME}_impl.hpp" "${SCHEMA_BASE_NAME}.hpp" "${SCHEMA_BASE_NAME}.cpp"
+  COMMAND json2cpp "allof_integers_and_numbers_schema" "${CMAKE_SOURCE_DIR}/examples/allof_integers_and_numbers.schema.json" "${SCHEMA_BASE_NAME}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_executable(valijson_tests valijson_tests.cpp)
+set(INT_BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/array_integers_10_20_30_40")
+add_custom_command(
+  DEPENDS json2cpp
+  OUTPUT "${INT_BASE_NAME}_impl.hpp" "${INT_BASE_NAME}.hpp" "${INT_BASE_NAME}.cpp"
+  COMMAND json2cpp "array_integers_10_20_30_40" "${CMAKE_SOURCE_DIR}/examples/array_integers_10_20_30_40.json" "${INT_BASE_NAME}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(DOUBLE_BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/array_doubles_10_20_30_40")
+add_custom_command(
+  DEPENDS json2cpp
+  OUTPUT "${DOUBLE_BASE_NAME}_impl.hpp" "${DOUBLE_BASE_NAME}.hpp" "${DOUBLE_BASE_NAME}.cpp"
+  COMMAND json2cpp "array_doubles_10_20_30_40" "${CMAKE_SOURCE_DIR}/examples/array_doubles_10_20_30_40.json" "${DOUBLE_BASE_NAME}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+
+add_executable(valijson_tests valijson_tests.cpp ${SCHEMA_BASE_NAME}.cpp ${DOUBLE_BASE_NAME}.cpp ${INT_BASE_NAME}.cpp)
 target_include_directories(valijson_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(valijson_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 

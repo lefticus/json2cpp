@@ -71,7 +71,7 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
   results.hpp.emplace_back("#include <json2cpp/constexpr_json.hpp>");
 
   results.hpp.push_back(fmt::format("namespace compiled_json::{} {{", document_name));
-  results.hpp.push_back(fmt::format("  constexpr_json::json get_{}();", document_name));
+  results.hpp.push_back(fmt::format("  const constexpr_json::json &get_{}();", document_name));
   results.hpp.emplace_back("}");
 
   results.hpp.emplace_back("#endif");
@@ -91,7 +91,7 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
 
   results.impl.push_back(fmt::format("static constexpr auto document = constexpr_json::json{{{}}};", last_obj_name));
 
-  results.impl.push_back(fmt::format("constexpr_json::json get_{}() {{ return document; }}", document_name));
+  results.impl.push_back(fmt::format("const constexpr_json::json &get_{}() {{ return document; }}", document_name));
   results.impl.emplace_back("}");
   results.impl.emplace_back("#endif");
 

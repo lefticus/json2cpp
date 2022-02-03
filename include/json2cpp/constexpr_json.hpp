@@ -170,7 +170,7 @@ struct json
 
   constexpr const json &operator[](const std::size_t idx) const
   {
-    if (const auto &children = array_data(); children.size() < idx) {
+    if (const auto &children = array_data(); idx < children.size()) {
       return *std::next(children.begin(), static_cast<std::ptrdiff_t>(idx));
     } else {
       throw std::runtime_error("index out of range");
