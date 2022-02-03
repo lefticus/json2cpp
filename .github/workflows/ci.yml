@@ -40,6 +40,9 @@ jobs:
           # you can attempt to use it in your own project if you desire.
           - os: "windows-2019"
             compiler: gcc
+          # don't care about windows/llvm for this project
+          - os: "windows-2019"
+            compiler: llvm
         include:
           - os: "windows-2019"
             compiler: "msvc"

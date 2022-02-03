@@ -14,7 +14,6 @@ add_custom_command(
   COMMAND json2cpp "test_json" "${CMAKE_SOURCE_DIR}/examples/test.json" "${BASE_NAME}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-
 add_executable(tests tests.cpp "${BASE_NAME}.cpp")
 target_include_directories(tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
@@ -42,7 +41,6 @@ target_link_libraries(constexpr_tests PRIVATE project_options project_warnings c
 target_include_directories(constexpr_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(constexpr_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-
 catch_discover_tests(
   constexpr_tests
   TEST_PREFIX
@@ -64,7 +62,6 @@ target_compile_definitions(relaxed_constexpr_tests PRIVATE -DCATCH_CONFIG_RUNTIM
 target_include_directories(relaxed_constexpr_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(relaxed_constexpr_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-
 catch_discover_tests(
   relaxed_constexpr_tests
   TEST_PREFIX
@@ -78,10 +75,6 @@ catch_discover_tests(
   OUTPUT_SUFFIX
   .xml)
 
-
-
-
-
 set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/schema")
 add_custom_command(
   DEPENDS json2cpp
@@ -89,12 +82,15 @@ add_custom_command(
   COMMAND json2cpp "schema" "${CMAKE_SOURCE_DIR}/examples/Energy+.schema.epJSON" "${BASE_NAME}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-
 # Add a file containing a set of constexpr_schema tests
 add_executable(constexpr_schema_tests constexpr_schema_tests.cpp "${BASE_NAME}_impl.hpp")
 target_link_libraries(constexpr_schema_tests PRIVATE project_options project_warnings catch_main)
 target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
+if(MSVC)
+  target_compile_options(relaxed_constexpr_schema_tests PRIVATE "/bigobj")
+endif()
 
 # disable analysis for these very large generated bits of code
 set_target_properties(constexpr_schema_tests PROPERTIES CXX_CPPCHECK "" CXX_CLANG_TIDY "")
@@ -120,10 +116,12 @@ target_compile_definitions(relaxed_constexpr_schema_tests PRIVATE -DCATCH_CONFIG
 target_include_directories(relaxed_constexpr_schema_tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(relaxed_constexpr_schema_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
+if(MSVC)
+  target_compile_options(relaxed_constexpr_schema_tests PRIVATE "/bigobj")
+endif()
+
 # disable analysis for these very large generated bits of code
 set_target_properties(relaxed_constexpr_schema_tests PROPERTIES CXX_CPPCHECK "" CXX_CLANG_TIDY "")
-
-
 
 catch_discover_tests(
   relaxed_constexpr_schema_tests
@@ -137,7 +135,3 @@ catch_discover_tests(
   "relaxed_constexpr_schema."
   OUTPUT_SUFFIX
   .xml)
-
-
-
-
