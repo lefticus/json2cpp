@@ -89,7 +89,7 @@ target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_SOURCE_DIR}/i
 target_include_directories(constexpr_schema_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 if(MSVC)
-  target_compile_options(relaxed_constexpr_schema_tests PRIVATE "/bigobj")
+  target_compile_options(constexpr_schema_tests PRIVATE "/bigobj")
 endif()
 
 # disable analysis for these very large generated bits of code
