@@ -18,7 +18,8 @@ template<typename First, typename Second> struct pair
 template<typename T> struct span
 {
   template<std::size_t Size>
-  constexpr explicit span(const std::array<T, Size> &input) : begin_{ &*input.begin() }, end_{ &*input.end() }
+  constexpr explicit span(const std::array<T, Size> &input)
+    : begin_{ input.data() }, end_{ std::next(input.data(), Size) }
   {}
 
   constexpr const T *begin() const { return begin_; }
