@@ -8,7 +8,8 @@ TEST_CASE("Basic test of very large energyplus JSON schema")
 
   using namespace std::literals::string_view_literals;
 
-  STATIC_REQUIRE(document["properties"sv]["Version"sv]["patternProperties"sv][".*"sv]["properties"sv]["version_identifier"sv]["default"sv].as_string() == "22.1"sv);
+  STATIC_REQUIRE(document["properties"sv]["Version"sv]["patternProperties"sv][".*"sv]["properties"sv]
+                         ["version_identifier"sv]["default"sv]
+                           .as_string()
+                 == "22.1"sv);
 }
-
-

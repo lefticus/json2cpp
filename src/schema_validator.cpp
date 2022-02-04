@@ -7,10 +7,10 @@
 #include <spdlog/spdlog.h>
 
 #include <json2cpp/json2cpp_adapter.hpp>
+#include <valijson/adapters/nlohmann_json_adapter.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validator.hpp>
-#include <valijson/adapters/nlohmann_json_adapter.hpp>
 
 #include "schema.hpp"
 

@@ -14,8 +14,9 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
         "constexpr_json::value_pair_t{{{}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
     }
 
-    lines.push_back(fmt::format(
-      "static constexpr std::array<constexpr_json::value_pair_t, {}> object_data_{} = {{", pairs.size(), current_object_number));
+    lines.push_back(fmt::format("static constexpr std::array<constexpr_json::value_pair_t, {}> object_data_{} = {{",
+      pairs.size(),
+      current_object_number));
 
     std::transform(pairs.begin(), pairs.end(), std::back_inserter(lines), [](const auto &pair) {
       return fmt::format("  {}", pair);
@@ -31,8 +32,9 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
     });
 
 
-    lines.push_back(
-      fmt::format("static constexpr std::array<constexpr_json::json, {}> object_data_{} = {{{{", entries.size(), current_object_number));
+    lines.push_back(fmt::format("static constexpr std::array<constexpr_json::json, {}> object_data_{} = {{{{",
+      entries.size(),
+      current_object_number));
 
     std::transform(entries.begin(), entries.end(), std::back_inserter(lines), [](const auto &entry) {
       return fmt::format("  {}", entry);

@@ -1,5 +1,5 @@
-#include <catch2/catch.hpp>
 #include "test_json.hpp"
+#include <catch2/catch.hpp>
 
 TEST_CASE("Can read object size")
 {
@@ -27,4 +27,3 @@ TEST_CASE("Can read iterator key")
   const auto &document = compiled_json::test_json::get_test_json();
   REQUIRE(document.begin().key() == "glossary");
 }
-
