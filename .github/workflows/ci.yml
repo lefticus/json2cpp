@@ -102,7 +102,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.compiler }}-${{matrix.build_type}}-${{matrix.generator}}-${{matrix.developer_mode}}
 
       - name: Setup Cpp
-        uses: lefticus/setup-cpp@fix_python
+        uses: aminya/setup-cpp@master
         with:
           compiler: ${{ matrix.compiler }}
           vcvarsall: ${{ contains(matrix.os, 'windows' )}}
