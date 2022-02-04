@@ -18,11 +18,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+
+      # Recommendations:
+      #   * support at least 2 operating systems
+      #   * support at least 2 compilers
+      #   * make sure all supported configurations for your project are built
+      #
+      # Disable/enable builds in this list to meet the above recommendations
+      # and your own projects needs
       matrix:
         os:
-          - windows-2019
           - ubuntu-20.04
           - macos-10.15
+          - windows-2019
         compiler:
           # you can specify the version after `-` like "llvm-13.0.0".
           - llvm
@@ -35,36 +43,43 @@ jobs:
         developer_mode:
           - ON
           - OFF
+
         exclude:
-          # mingw has threading, pch, and static library issues
-          # you can attempt to use it in your own project if you desire.
-          - os: "windows-2019"
+          # mingw is determined by this author to be too buggy to support
+          - os: windows-2019
             compiler: gcc
-          # don't care about windows/llvm for this project
-          - os: "windows-2019"
-            compiler: llvm
+
         include:
-          - os: "windows-2019"
-            compiler: "msvc"
-            build_type: Release
-            developer_mode: ON
-            generator: "Visual Studio 16 2019"
-          - os: "windows-2019"
-            compiler: "msvc"
-            build_type: Release
-            developer_mode: OFF
-            generator: "Visual Studio 16 2019"
-          - os: "windows-2019"
-            compiler: "msvc"
+          # This exists solely to make sure a non-multiconfig build works
+          - os: ubuntu-20.04
+            compiler: gcc
+            generator: "Unix Makefiles"
             build_type: Debug
-            developer_mode: ON
-            generator: "Visual Studio 16 2019"
-          - os: "windows-2019"
-            compiler: "msvc"
-            build_type: RelWithDebInfo
-            developer_mode: ON
-            generator: "Visual Studio 16 2019"
- 
+            developer_mode: On
+
+          - os: windows-2022
+            compiler: msvc
+            generator: "Visual Studio 17 2022"
+            build_type: Debug
+            developer_mode: On
+          - os: windows-2022
+            compiler: msvc
+            generator: "Visual Studio 17 2022"
+            build_type: Release
+            developer_mode: On
+          - os: windows-2022
+            compiler: msvc
+            generator: "Visual Studio 17 2022"
+            build_type: Debug
+            developer_mode: Off
+          - os: windows-2022
+            compiler: msvc
+            generator: "Visual Studio 17 2022"
+            build_type: Release
+            developer_mode: Off
+
+
+
 
 
     steps:
