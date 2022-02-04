@@ -3,9 +3,9 @@
 #include <functional>
 #include <iostream>
 
+#include "json2cpp.hpp"
 #include <docopt/docopt.h>
 #include <spdlog/spdlog.h>
-#include "json2cpp.hpp"
 
 
 static constexpr auto USAGE =

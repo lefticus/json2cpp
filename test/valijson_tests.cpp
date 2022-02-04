@@ -1,12 +1,11 @@
+#include "allof_integers_and_numbers.schema.hpp"
+#include "array_doubles_10_20_30_40.hpp"
+#include "array_integers_10_20_30_40.hpp"
+#include <catch2/catch.hpp>
 #include <json2cpp/json2cpp_adapter.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validator.hpp>
-#include <catch2/catch.hpp>
-#include "allof_integers_and_numbers.schema.hpp"
-#include "array_integers_10_20_30_40.hpp"
-#include "array_doubles_10_20_30_40.hpp"
-
 
 
 TEST_CASE("Can load a valijson schema")
@@ -20,7 +19,8 @@ TEST_CASE("Can load a valijson schema")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
+  json2cppJsonAdapter mySchemaAdapter(
+    compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 }
 
@@ -36,7 +36,8 @@ TEST_CASE("Validation fails where expected")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
+  json2cppJsonAdapter mySchemaAdapter(
+    compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
@@ -57,7 +58,8 @@ TEST_CASE("Can validate a document")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
+  json2cppJsonAdapter mySchemaAdapter(
+    compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
@@ -65,4 +67,3 @@ TEST_CASE("Can validate a document")
 
   REQUIRE(validator.validate(mySchema, myTargetAdapter, nullptr));
 }
-

@@ -71,9 +71,7 @@ struct json
       }
     }
 
-    constexpr const json *operator->() const {
-      return &(*(*this));
-    }
+    constexpr const json *operator->() const { return &(*(*this)); }
 
     constexpr std::size_t index() const { return index_; }
 
@@ -177,13 +175,10 @@ struct json
     }
   }
 
-  constexpr iterator find(const std::string_view key) const 
+  constexpr iterator find(const std::string_view key) const
   {
-    for (auto itr = begin(); itr != end(); ++itr)
-    {
-      if (itr.key() == key) {
-        return itr;
-      }
+    for (auto itr = begin(); itr != end(); ++itr) {
+      if (itr.key() == key) { return itr; }
     }
 
     return end();
