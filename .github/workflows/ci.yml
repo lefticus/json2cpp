@@ -84,6 +84,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
 
       - name: Cache
         uses: actions/cache@v2
@@ -102,7 +103,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.compiler }}-${{matrix.build_type}}-${{matrix.generator}}-${{matrix.developer_mode}}
 
       - name: Setup Cpp
-        uses: aminya/setup-cpp@master
+        uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
           vcvarsall: ${{ contains(matrix.os, 'windows' )}}
