@@ -181,7 +181,7 @@ struct json
     // find_if is not constexpr in C++17, so we rolled our own,
     // and this helps us work around bugs in older versions of GCC
     // and constexpr
-    const auto find = [&]() {
+    const auto finder = [&]() {
       auto itr = children.begin();
 
       for (; itr != children.end(); ++itr) {
@@ -191,7 +191,7 @@ struct json
       return itr;
     };
 
-    const auto obj = find();
+    const auto obj = finder();
 
     if (obj != children.end()) {
       return obj->second;
