@@ -47,7 +47,7 @@ jobs:
         exclude:
           # mingw is determined by this author to be too buggy to support
           - os: windows-2019
-            compiler: gcc
+            compiler: gcc-8
 
         include:
           # This exists solely to make sure a non-multiconfig build works
@@ -57,24 +57,24 @@ jobs:
             build_type: Debug
             developer_mode: On
 
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Debug
             developer_mode: On
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Release
             developer_mode: On
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Debug
             developer_mode: Off
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Release
             developer_mode: Off
 
