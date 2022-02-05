@@ -334,7 +334,8 @@ namespace adapters {
     {
       if (m_value.is_object()) { return opt::make_optional(json2cppJsonObject(m_value)); }
 
-      return {};
+      opt::optional<json2cppJsonObject> emptyreturn{};
+      return emptyreturn;
     }
 
     /**

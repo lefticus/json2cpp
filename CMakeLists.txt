@@ -72,6 +72,12 @@ dynamic_project_options(
   # GCC_WARNINGS   # Override the defaults for the GCC warnings
 )
 
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9")
+  target_link_libraries(project_options INTERFACE stdc++fs)
+endif()
+
+
 target_compile_features(project_options INTERFACE cxx_std_${USER_CXX_STANDARD})
 
 # Adding the src:
