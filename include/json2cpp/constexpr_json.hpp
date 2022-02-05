@@ -48,10 +48,7 @@ struct json
 {
   struct iterator
   {
-    constexpr explicit iterator(const json &value, std::size_t index=0)
-      : parent_value_(&value), index_{index}
-    {
-    }
+    constexpr explicit iterator(const json &value, std::size_t index = 0) : parent_value_(&value), index_{ index } {}
 
     constexpr const json &operator*() const
     {
