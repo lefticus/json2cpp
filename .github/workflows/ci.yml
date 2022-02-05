@@ -85,7 +85,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-
+        run: pip3 install conan gcovr
       - name: Cache
         uses: actions/cache@v2
         with:
@@ -110,14 +110,14 @@ jobs:
 
           cmake: true
           ninja: true
-          conan: true
+          conan: false
           vcpkg: false
           ccache: true
           clangtidy: true
 
           cppcheck: true
 
-          gcovr: true
+          gcovr: false
           opencppcoverage: true
 
       - name: Configure CMake
