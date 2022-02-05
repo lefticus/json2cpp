@@ -48,23 +48,16 @@ struct json
 {
   struct iterator
   {
-    constexpr explicit iterator(const json &value, bool end = false)
-      : parent_value_(&value), is_object_{ value.is_object() }, is_array_{ value.is_array() }
+    constexpr explicit iterator(const json &value, std::size_t index=0)
+      : parent_value_(&value), index_{index}
     {
-      if (end == true) {
-        if (is_array_) {
-          index_ = value.array_data().size();
-        } else if (is_object_) {
-          index_ = value.object_data().size();
-        }
-      }
     }
 
     constexpr const json &operator*() const
     {
-      if (is_array_) {
+      if (parent_value_->is_array()) {
         return (*parent_value_)[index_];
-      } else if (is_object_) {
+      } else if (parent_value_->is_object()) {
         return std::next(parent_value_->object_data().begin(), static_cast<std::ptrdiff_t>(index_))->second;
       } else {
         return *parent_value_;
@@ -80,7 +73,7 @@ struct json
 
     constexpr std::string_view key() const
     {
-      if (is_object_) {
+      if (parent_value_->is_object()) {
         return std::next(parent_value_->object_data().begin(), static_cast<std::ptrdiff_t>(index_))->first;
       } else {
         throw std::runtime_error("json value is not an object, it has no key");
@@ -140,17 +133,14 @@ struct json
     }
 
     const json *parent_value_{ nullptr };
-
     std::size_t index_{ 0 };
-    bool is_object_{ false };
-    bool is_array_{ false };
   };
 
   using const_iterator = iterator;
 
   constexpr iterator begin() const { return iterator{ *this }; }
 
-  constexpr iterator end() const { return iterator{ *this, true }; }
+  constexpr iterator end() const { return iterator{ *this, size() }; }
 
   constexpr iterator cbegin() const { return begin(); }
 
