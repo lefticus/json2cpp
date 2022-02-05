@@ -15,37 +15,32 @@ target_link_libraries(
           spdlog::spdlog
           nlohmann_json::nlohmann_json)
 
+if(ENABLE_LARGE_TESTS)
+  set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/schema")
+  add_custom_command(
+    DEPENDS json2cpp
+    OUTPUT "${BASE_NAME}_impl.hpp" "${BASE_NAME}.hpp" "${BASE_NAME}.cpp"
+    COMMAND json2cpp "energyplus_schema" "${CMAKE_SOURCE_DIR}/examples/Energy+.schema.epJSON" "${BASE_NAME}"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
+  add_executable(schema_validator schema_validator.cpp "${BASE_NAME}.cpp")
+  target_link_libraries(
+    schema_validator
+    PRIVATE project_options
+            project_warnings
+            docopt::docopt
+            fmt::fmt
+            spdlog::spdlog
+            ValiJSON::valijson
+            nlohmann_json::nlohmann_json)
 
-set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/schema")
-add_custom_command(
-  DEPENDS json2cpp
-  OUTPUT "${BASE_NAME}_impl.hpp" "${BASE_NAME}.hpp" "${BASE_NAME}.cpp"
-  COMMAND json2cpp "energyplus_schema" "${CMAKE_SOURCE_DIR}/examples/Energy+.schema.epJSON" "${BASE_NAME}"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  target_include_directories(schema_validator PRIVATE "${CMAKE_SOURCE_DIR}/include")
+  target_include_directories(schema_validator PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
+  if(MSVC)
+    target_compile_options(schema_validator PRIVATE "/bigobj")
+  endif()
 
-add_executable(schema_validator schema_validator.cpp "${BASE_NAME}.cpp")
-target_link_libraries(
-  schema_validator
-  PRIVATE project_options
-          project_warnings
-          docopt::docopt
-          fmt::fmt
-          spdlog::spdlog
-          ValiJSON::valijson
-          nlohmann_json::nlohmann_json)
-
-
-target_include_directories(schema_validator PRIVATE "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(schema_validator PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-
-if(MSVC)
-  target_compile_options(schema_validator PRIVATE "/bigobj")
+  # disable analysis for these very large generated bits of code
+  set_target_properties(schema_validator PROPERTIES CXX_CPPCHECK "" CXX_CLANG_TIDY "")
 endif()
-
-# disable analysis for these very large generated bits of code
-set_target_properties(schema_validator PROPERTIES CXX_CPPCHECK "" CXX_CLANG_TIDY "")
-
-
-

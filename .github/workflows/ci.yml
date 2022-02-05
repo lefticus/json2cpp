@@ -43,11 +43,15 @@ jobs:
         developer_mode:
           - ON
           - OFF
+        large_tests:
+          - OFF
 
         exclude:
           # mingw is determined by this author to be too buggy to support
           - os: windows-2019
             compiler: gcc-8
+          - os: windows-2019
+            compiler: llvm
 
         include:
           # This exists solely to make sure a non-multiconfig build works
@@ -123,7 +127,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}}
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrics.large_tests}}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"

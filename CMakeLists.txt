@@ -80,6 +80,9 @@ endif()
 
 target_compile_features(project_options INTERFACE cxx_std_${USER_CXX_STANDARD})
 
+option(ENABLE_LARGE_TESTS "Enable tests and tools that use the Energy+ schema file" ON)
+
+
 # Adding the src:
 add_subdirectory(src)
 
