@@ -21,7 +21,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # https://github.com/cpp-best-practices/project_options
 include(FetchContent)
 FetchContent_Declare(_project_options 
-                     URL https://github.com/cpp-best-practices/project_options/archive/refs/heads/suppress_unactionable_cppcheck_warnings.zip)
+                     URL https://github.com/cpp-best-practices/project_options/archive/refs/heads/main.zip)
                    #                   URL https://github.com/cpp-best-practices/project_options/archive/refs/tags/v0.13.1.zip)
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
