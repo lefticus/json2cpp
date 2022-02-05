@@ -71,9 +71,7 @@ struct json
       }
     }
 
-    constexpr const json *operator->() const {
-      return &(*(*this));
-    }
+    constexpr const json *operator->() const { return &(*(*this)); }
 
     constexpr std::size_t index() const { return index_; }
 
@@ -177,13 +175,10 @@ struct json
     }
   }
 
-  constexpr iterator find(const std::string_view key) const 
+  constexpr iterator find(const std::string_view key) const
   {
-    for (auto itr = begin(); itr != end(); ++itr)
-    {
-      if (itr.key() == key) {
-        return itr;
-      }
+    for (auto itr = begin(); itr != end(); ++itr) {
+      if (itr.key() == key) { return itr; }
     }
 
     return end();
@@ -193,13 +188,26 @@ struct json
   {
     const auto &children = object_data();
 
-    // find_if is not constexpr yet in C++17
-    for (const auto &value : children) {
-      // cppcheck-suppress useStlAlgorithm
-      if (value.first == key) { return value.second; }
-    }
+    // find_if is not constexpr in C++17, so we rolled our own,
+    // and this helps us work around bugs in older versions of GCC
+    // and constexpr
+    const auto find = [&]() {
+      auto itr = children.begin();
 
-    throw std::runtime_error("Key not found");
+      for (; itr != children.end(); ++itr) {
+        if (itr->first == key) { return itr; }
+      }
+
+      return itr;
+    };
+
+    const auto obj = find();
+
+    if (obj != children.end()) {
+      return obj->second;
+    } else {
+      throw std::runtime_error("Key not found");
+    }
   }
 
   constexpr const array_t &array_data() const
