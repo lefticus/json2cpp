@@ -46,12 +46,6 @@ jobs:
         large_tests:
           - OFF
 
-        include:
-          - compiler: llvm
-            gcov: "llvm-cov gcov"
-          - compiler: gcc-8
-            gcov: "gcov-8"
-
         exclude:
           # mingw is determined by this author to be too buggy to support
           - os: windows-2019
@@ -73,6 +67,12 @@ jobs:
 
 
         include:
+          # setup gcov variables for extra compiler versions
+          - compiler: llvm
+            gcov: "llvm-cov gcov"
+          - compiler: gcc-8
+            gcov: "gcov-8"
+
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-20.04
             compiler: gcc
