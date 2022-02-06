@@ -1,10 +1,12 @@
 name: ci
 on:
   pull_request:
+  tag:
   push:
+    tags:
+      - v*
     branches:
       - main
-      - master
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -150,7 +152,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${GITHUB_SHA}
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ GITHUB_SHA }}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
@@ -181,6 +183,13 @@ jobs:
         working-directory: ./build
         run: |
           cpack -C ${{matrix.build_type}} -G ${{matrix.package_generator}}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main') && matrix.package_generator != '' }}
+        with:
+          files: |
+            build/*-*-*${{ matrix.build_type }}*-*-*.*
 
       - name: Publish to codecov
         uses: codecov/codecov-action@v2
