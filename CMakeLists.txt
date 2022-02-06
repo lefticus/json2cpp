@@ -31,7 +31,7 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 # run_vcpkg()
 
 # Set the project name and language
-project(myproject LANGUAGES CXX C)
+project(json2cpp VERSION 0.0.1 DESCRIPTION "Compiles JSON files into `static constexpr` C++ files"  LANGUAGES CXX C)
 
 if(GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
   # Make sure that all supported configuration types have their
@@ -110,3 +110,5 @@ endif()
 
 # set the startup project for the "play" button in MSVC
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT json2cpp)
+
+include(CPack)

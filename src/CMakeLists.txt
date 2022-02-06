@@ -14,6 +14,8 @@ target_link_libraries(
           fmt::fmt
           spdlog::spdlog
           nlohmann_json::nlohmann_json)
+install(TARGETS json2cpp)
+install(DIRECTORY ../include DESTINATION .)
 
 if(ENABLE_LARGE_TESTS)
   set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/schema")
