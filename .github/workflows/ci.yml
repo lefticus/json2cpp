@@ -72,6 +72,7 @@ jobs:
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-20.04
             compiler: gcc
+            gcov: gcov
             generator: "Unix Makefiles"
             build_type: Debug
             developer_mode: On
