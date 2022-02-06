@@ -155,6 +155,8 @@ jobs:
         run: |
           ctest -C ${{matrix.build_type}}
           pwd
+          which gcov
+          gcov --version
           gcovr --version
           gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose
 
