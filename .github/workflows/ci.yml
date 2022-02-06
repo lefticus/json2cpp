@@ -145,11 +145,11 @@ jobs:
         if: ${{matrix.build_type}}
         env:
           ENABLE_COVERAGE: TRUE
-        run: echo "Build Type: ${{matrix.build_type}} Coverage set to: ${ENABLE_COVERAGE}"
+        run: echo "Build Type: ${{matrix.build_type}} Coverage set to: ${{env.ENABLE_COVERAGE}}"
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${ENABLE_COVERAGE}
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{env.ENABLE_COVERAGE}}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
