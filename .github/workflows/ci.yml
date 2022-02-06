@@ -48,9 +48,9 @@ jobs:
 
         include:
           - compiler: llvm
-            gcovr: "llvm-cov gcov"
+            gcov: "llvm-cov gcov"
           - compiler: gcc-8
-            gcovr: "gcov-8"
+            gcov: "gcov-8"
 
         exclude:
           # mingw is determined by this author to be too buggy to support
