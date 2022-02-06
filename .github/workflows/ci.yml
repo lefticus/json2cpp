@@ -69,6 +69,12 @@ jobs:
           - compiler: gcc-8
             gcov: "gcov-8"
 
+          # setup preferred package generators
+          - developer_mode: OFF
+            build_type: Release
+            package_generator: TBZ2
+
+
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-20.04
             compiler: gcc
@@ -97,6 +103,7 @@ jobs:
             generator: "Visual Studio 16 2019"
             build_type: Release
             developer_mode: Off
+            package_generator: ZIP
 
 
 
@@ -143,7 +150,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }}
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${GITHUB_SHA}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
@@ -168,6 +175,12 @@ jobs:
         working-directory: ./build
         run: |
           OpenCppCoverage.exe --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{matrix.build_type}}
+
+      - name: Build Package
+        if: matrix.package_generator != ''
+        working-directory: ./build
+        run: |
+          cpack -C ${{matrix.build_type}} -G ${{matrix.package_generator}}
 
       - name: Publish to codecov
         uses: codecov/codecov-action@v2
