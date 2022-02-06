@@ -1,7 +1,6 @@
 name: ci
 on:
   pull_request:
-  tag:
   push:
     tags:
       - v*
