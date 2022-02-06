@@ -50,7 +50,6 @@ jobs:
           # mingw is determined by this author to be too buggy to support
           - os: windows-2019
             compiler: gcc-8
-
           # These have anonalous failures, not sure what is up with no access to a physical Mac.
           - os: macos-10.15
             compiler: gcc-8
@@ -70,7 +69,7 @@ jobs:
           - compiler: gcc-8
             gcov: "gcov-8"
           - compiler: gcc
-            gcov: gcc
+            gcov: "gcc"
 
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-20.04
