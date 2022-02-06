@@ -143,10 +143,9 @@ jobs:
         # coverage forces -O0, so we need to only enable it for Debug builds
       - name: Select Coverage Mode
         if: ${{matrix.build_type}}
-        env: 
+        env:
           ENABLE_COVERAGE: TRUE
-
-            # - run: echo "Build Type: ${{matrix.build_type}} Coverage set to: ${ENABLE_COVERAGE}"
+        run: echo "Build Type: ${{matrix.build_type}} Coverage set to: ${ENABLE_COVERAGE}"
 
       - name: Configure CMake
         run: |
