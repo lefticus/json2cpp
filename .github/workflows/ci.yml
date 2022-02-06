@@ -145,7 +145,7 @@ jobs:
         if: matrix.build_type == 'Debug'
         env:
           ENABLE_COVERAGE: TRUE
-        run: echo "Build Type: ${{matrix.build_type}} Coverage set to: ${{env.ENABLE_COVERAGE}}"
+        run: echo "Build Type: ${{matrix.build_type}} Coverage set"
 
       - name: Configure CMake
         run: |
