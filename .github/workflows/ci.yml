@@ -68,8 +68,6 @@ jobs:
             gcov: "llvm-cov gcov"
           - compiler: gcc-8
             gcov: "gcov-8"
-          - compiler: gcc
-            gcov: "gcc"
 
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-20.04
