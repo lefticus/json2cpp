@@ -50,10 +50,6 @@ jobs:
           # mingw is determined by this author to be too buggy to support
           - os: windows-2019
             compiler: gcc-8
-
-              #          - os: windows-2019
-              #compiler: llvm
-
           # These have anonalous failures, not sure what is up with no access to a physical Mac.
           - os: macos-10.15
             compiler: gcc-8
@@ -67,9 +63,16 @@ jobs:
 
 
         include:
+          # setup gcov variables for extra compiler versions
+          - compiler: llvm
+            gcov: "llvm-cov gcov"
+          - compiler: gcc-8
+            gcov: "gcov-8"
+
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-20.04
             compiler: gcc
+            gcov: gcov
             generator: "Unix Makefiles"
             build_type: Debug
             developer_mode: On
@@ -118,7 +121,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.compiler }}-${{matrix.build_type}}-${{matrix.generator}}-${{matrix.developer_mode}}
 
-      - run: pip3 install conan gcovr cmake ninja
+      - run: pip3 install conan cmake ninja
 
       - name: Setup Cpp
         uses: aminya/setup-cpp@v1
@@ -135,12 +138,12 @@ jobs:
 
           cppcheck: true
 
-          gcovr: false
+          gcovr: true
           opencppcoverage: true
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=TRUE
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
@@ -154,13 +157,17 @@ jobs:
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: |
           ctest -C ${{matrix.build_type}}
-          gcovr -j ${{env.nproc}} --delete --root ../ --print-summary --xml-pretty --xml coverage.xml .
+          pwd
+          which gcov
+          gcov --version
+          gcovr --version
+          gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose --gcov-executable '${{matrix.gcov}}'
 
       - name: Windows - Test and coverage
         if: runner.os == 'Windows'
         working-directory: ./build
         run: |
-          OpenCppCoverage.exe --sources cpp_starter_project --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{matrix.build_type}}
+          OpenCppCoverage.exe --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{matrix.build_type}}
 
       - name: Publish to codecov
         uses: codecov/codecov-action@v2
