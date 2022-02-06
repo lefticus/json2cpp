@@ -12,8 +12,6 @@ env:
   CONAN_SYSREQUIRES_MODE: enabled
   CONAN_USER_HOME: "${{ github.workspace }}/conan-cache"
   CONAN_USER_HOME_SHORT: "${{ github.workspace }}/conan-cache/short"
-  ENABLE_COVERAGE: FALSE
-
 
 jobs:
   Test:
@@ -140,17 +138,9 @@ jobs:
           gcovr: false
           opencppcoverage: true
 
-        # coverage forces -O0, so we need to only enable it for Debug builds
-      - name: Select Coverage Mode
-        if: matrix.build_type == 'Debug'
-        env:
-          ENABLE_COVERAGE: TRUE
-        run: |
-          echo "Build Type: ${{matrix.build_type}} Coverage set"
-
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{env.ENABLE_COVERAGE}}
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
