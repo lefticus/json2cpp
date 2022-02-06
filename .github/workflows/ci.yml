@@ -161,7 +161,7 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: ./build
         run: |
-          OpenCppCoverage.exe --sources cpp_starter_project --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{matrix.build_type}}
+          OpenCppCoverage.exe --sources .. --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{matrix.build_type}}
 
       - name: Publish to codecov
         uses: codecov/codecov-action@v2
