@@ -46,6 +46,12 @@ jobs:
         large_tests:
           - OFF
 
+        include:
+          - compiler: llvm
+            gcovr: "llvm-cov gcov"
+          - compiler: gcc-8
+            gcovr: "gcov-8"
+
         exclude:
           # mingw is determined by this author to be too buggy to support
           - os: windows-2019
@@ -158,7 +164,7 @@ jobs:
           which gcov
           gcov --version
           gcovr --version
-          gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose
+          gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose --gcov-executable ${{matrix.gcov}}
 
       - name: Windows - Test and coverage
         if: runner.os == 'Windows'
