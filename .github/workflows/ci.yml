@@ -161,7 +161,7 @@ jobs:
           which gcov
           gcov --version
           gcovr --version
-          gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose --gcov-executable "${{matrix.gcov}}"
+          gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose --gcov-executable '${{matrix.gcov}}'
 
       - name: Windows - Test and coverage
         if: runner.os == 'Windows'
