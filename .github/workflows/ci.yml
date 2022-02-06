@@ -142,7 +142,7 @@ jobs:
 
         # coverage forces -O0, so we need to only enable it for Debug builds
       - name: Select Coverage Mode
-        if: ${{matrix.build_type}}
+        if: matrix.build_type == 'Debug'
         env:
           ENABLE_COVERAGE: TRUE
         run: echo "Build Type: ${{matrix.build_type}} Coverage set to: ${{env.ENABLE_COVERAGE}}"
