@@ -51,9 +51,6 @@ jobs:
           - os: windows-2019
             compiler: gcc-8
 
-              #          - os: windows-2019
-              #compiler: llvm
-
           # These have anonalous failures, not sure what is up with no access to a physical Mac.
           - os: macos-10.15
             compiler: gcc-8
@@ -72,6 +69,8 @@ jobs:
             gcov: "llvm-cov gcov"
           - compiler: gcc-8
             gcov: "gcov-8"
+          - compiler: gcc
+            gcov: gcc
 
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-20.04
@@ -164,7 +163,7 @@ jobs:
           which gcov
           gcov --version
           gcovr --version
-          gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose --gcov-executable ${{matrix.gcov}}
+          gcovr -j ${{env.nproc}} --root ../ --print-summary --xml-pretty --xml coverage.xml . --verbose --gcov-executable '${{matrix.gcov}}'
 
       - name: Windows - Test and coverage
         if: runner.os == 'Windows'
