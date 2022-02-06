@@ -20,9 +20,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Add project_options v0.13.1
 # https://github.com/cpp-best-practices/project_options
 include(FetchContent)
-FetchContent_Declare(_project_options 
+FetchContent_Declare(_project_options
                      URL https://github.com/cpp-best-practices/project_options/archive/refs/heads/main.zip)
-                   #                   URL https://github.com/cpp-best-practices/project_options/archive/refs/tags/v0.13.1.zip)
+#                   URL https://github.com/cpp-best-practices/project_options/archive/refs/tags/v0.13.1.zip)
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
 
@@ -30,8 +30,15 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 # # Setup vcpkg - should be called before defining project()
 # run_vcpkg()
 
+set(GIT_SHA "Unknown" CACHE STRING "SHA this build was generated from")
+string(SUBSTRING "${GIT_SHA}" 0 8 GIT_SHORT_SHA)
+
 # Set the project name and language
-project(json2cpp VERSION 0.0.1 DESCRIPTION "Compiles JSON files into `static constexpr` C++ files"  LANGUAGES CXX C)
+project(
+  json2cpp
+  VERSION 0.0.1
+  DESCRIPTION "Compiles JSON files into `static constexpr` C++ files"
+  LANGUAGES CXX C)
 
 if(GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
   # Make sure that all supported configuration types have their
@@ -72,16 +79,13 @@ dynamic_project_options(
   # GCC_WARNINGS   # Override the defaults for the GCC warnings
 )
 
-
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9")
   target_link_libraries(project_options INTERFACE stdc++fs)
 endif()
 
-
 target_compile_features(project_options INTERFACE cxx_std_${USER_CXX_STANDARD})
 
 option(ENABLE_LARGE_TESTS "Enable tests and tools that use the Energy+ schema file" ON)
-
 
 # Adding the src:
 add_subdirectory(src)
@@ -111,4 +115,9 @@ endif()
 # set the startup project for the "play" button in MSVC
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT json2cpp)
 
+set(CPACK_PACKAGE_FILE_NAME
+  "${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}-${GIT_SHORT_SHA}-${CMAKE_SYSTEM_NAME}-${CMAKE_BUILD_TYPE}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
+
 include(CPack)
+
+
