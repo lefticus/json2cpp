@@ -138,9 +138,19 @@ jobs:
           gcovr: false
           opencppcoverage: true
 
+      - name: Default Coverage Mode
+        env:
+          ENABLE_COVERAGE: FALSE
+
+      - name: Select Coverage Mode
+        if: ${{matrix.build_type}}
+        env: 
+          ENABLE_COVERAGE: TRUE
+        run: echo "Coverage set to: ${ENABLE_COVERAGE}"
+
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=TRUE
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${ENABLE_COVERAGE}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
