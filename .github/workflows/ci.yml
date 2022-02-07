@@ -184,7 +184,7 @@ jobs:
 
       - name: Publish Snapshot Release
         uses: softprops/action-gh-release@v1
-        if: ${{ (github.ref == 'refs/heads/main/') && matrix.package_generator != '' }}
+        if: ${{ (github.ref == 'refs/heads/main') && matrix.package_generator != '' }}
         with:
           tag_name: "snapshot-${{ github.sha }}"
           files: |
