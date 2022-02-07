@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     tags:
-      - v*
+      - '*'
     branches:
       - main
 
@@ -183,12 +183,12 @@ jobs:
         run: |
           cpack -C ${{matrix.build_type}} -G ${{matrix.package_generator}}
 
-      - name: Release
+      - name: Publish Release
         uses: softprops/action-gh-release@v1
-        if: ${{ (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main') && matrix.package_generator != '' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.package_generator != '' }}
         with:
           files: |
-            build/*-*-*${{ matrix.build_type }}*-*-*.*
+            build/*-*${{ matrix.build_type }}*-*.*
 
       - name: Publish to codecov
         uses: codecov/codecov-action@v2
