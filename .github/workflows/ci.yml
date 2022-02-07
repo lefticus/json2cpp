@@ -3,8 +3,6 @@ on:
   pull_request:
   push:
     tags:
-      - v*
-      - snapshot*
     branches:
       - main
 
@@ -184,7 +182,15 @@ jobs:
         run: |
           cpack -C ${{matrix.build_type}} -G ${{matrix.package_generator}}
 
-      - name: Publish Release
+      - name: Publish Snapshot Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ (github.ref == 'refs/heads/main/') && matrix.package_generator != '' }}
+        with:
+          tag_name: "snapshot-${{ github.sha }}"
+          files: |
+            build/*-*${{ matrix.build_type }}*-*.*
+
+      - name: Publish Tagged Release
         uses: softprops/action-gh-release@v1
         if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.package_generator != '' }}
         with:
