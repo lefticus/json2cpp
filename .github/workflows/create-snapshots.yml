@@ -5,18 +5,12 @@ on:
       - main
 
 jobs:
-  build:
+  create-tag:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Create tag
-        uses: actions/github-script@v5
+      - uses: actions/checkout@v2
+      - uses: rickstaa/action-create-tag@v1
         with:
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/snapshot-${{ github.sha }}',
-              sha: context.sha
-            })
+          tag: 'snapshot-${{ github.sha }}'
+          message: "auto generated snapshot pushed to main"
 
