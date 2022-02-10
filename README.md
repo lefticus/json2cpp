@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/lefticus/json2cpp/branch/main/graph/badge.svg)](https://codecov.io/gh/lefticus/json2cpp)
 [![Language grade: C++](https://img.shields.io/lgtm/grade/cpp/github/lefticus/json2cpp)](https://lgtm.com/projects/g/lefticus/json2cpp/context:cpp)
 
-json2cpp is compiles a json file into `static constexpr` data structures that can be used at compile time or runtime.
+**json2cpp** compiles a json file into `static constexpr` data structures that can be used at compile time or runtime.
 
 Features
 
@@ -15,7 +15,4 @@ Features
  * [valijson](https://github.com/tristanpenman/valijson) adapter file provided
 
 
-See [tests](tests) folder for examples for building resources, using the valijson adapter, constexpr usage of resources, and firewalled usage of resources.
-
-
-
+See the [test](test) folder for examples for building resources, using the valijson adapter, constexpr usage of resources, and firewalled usage of resources.
