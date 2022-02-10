@@ -91,7 +91,7 @@ dynamic_project_options(
   --suppress=internalAstError
   # if a file does not have an internalAstError, we get an unmatchedSuppression error
   --suppress=unmatchedSuppression
-  --suppress=passByValue
+  --suppress=passedByValue
   --inconclusive)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9")
