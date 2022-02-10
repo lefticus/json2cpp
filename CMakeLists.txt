@@ -20,8 +20,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Add project_options v0.13.1
 # https://github.com/cpp-best-practices/project_options
 include(FetchContent)
-FetchContent_Declare(_project_options
-                     URL https://github.com/cpp-best-practices/project_options/archive/refs/heads/main.zip)
+FetchContent_Declare(
+  _project_options
+  URL https://github.com/lefticus/project_options/archive/refs/heads/make_cppcheck_flags_configurable.zip)
 #                   URL https://github.com/cpp-best-practices/project_options/archive/refs/tags/v0.13.1.zip)
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
@@ -30,8 +31,14 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 # # Setup vcpkg - should be called before defining project()
 # run_vcpkg()
 
-set(GIT_SHA "Unknown" CACHE STRING "SHA this build was generated from")
-string(SUBSTRING "${GIT_SHA}" 0 8 GIT_SHORT_SHA)
+set(GIT_SHA
+    "Unknown"
+    CACHE STRING "SHA this build was generated from")
+string(
+  SUBSTRING "${GIT_SHA}"
+            0
+            8
+            GIT_SHORT_SHA)
 
 # Set the project name and language
 project(
@@ -77,7 +84,15 @@ dynamic_project_options(
   # MSVC_WARNINGS  # Override the defaults for the MSVC warnings
   # CLANG_WARNINGS # Override the defaults for the CLANG warnings
   # GCC_WARNINGS   # Override the defaults for the GCC warnings
-)
+  CPPCHECK_OPTIONS
+  --enable=style,performance,warning,portability
+  --inline-suppr
+  # We cannot act on a bug/missing feature of cppcheck
+  --suppress=internalAstError
+  # if a file does not have an internalAstError, we get an unmatchedSuppression error
+  --suppress=unmatchedSuppression
+  --suppress=passedByValue
+  --inconclusive)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9")
   target_link_libraries(project_options INTERFACE stdc++fs)
@@ -116,8 +131,7 @@ endif()
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT json2cpp)
 
 set(CPACK_PACKAGE_FILE_NAME
-  "${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}-${GIT_SHORT_SHA}-${CMAKE_SYSTEM_NAME}-${CMAKE_BUILD_TYPE}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
+    "${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}-${GIT_SHORT_SHA}-${CMAKE_SYSTEM_NAME}-${CMAKE_BUILD_TYPE}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
+)
 
 include(CPack)
-
-
