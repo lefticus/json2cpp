@@ -143,7 +143,7 @@ jobs:
           ccache: true
           clangtidy: true
 
-          cppcheck: true
+          cppcheck: 2.6
 
           gcovr: true
           opencppcoverage: true
