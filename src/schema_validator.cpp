@@ -46,11 +46,13 @@ static constexpr auto USAGE =
     Usage:
           schema_validator <schema_file> <document_to_validate> [--internal]
           schema_validator (-h | --help)
+          schema_validator <schema_file> --walk [--internal]
           schema_validator --version
  Options:
           -h --help     Show this screen.
           --version     Show version.
           --internal    Use internal schema
+          --walk        Just walk the schema and count objects (perf test)
 )";
 
 
@@ -134,6 +136,55 @@ bool validate_internal(const std::filesystem::path &file_to_validate)
   return result;
 }
 
+template<typename JSON>
+void walk_internal(std::int64_t &int_sum,
+  double &double_sum,
+  std::size_t &string_sizes,
+  int &array_count,
+  int &object_count,
+  const JSON &obj)
+{
+  if (obj.is_number_integer()) {
+    int_sum += obj.template get<std::int64_t>();
+  } else if (obj.is_number_float()) {
+    double_sum += obj.template get<double>();
+  } else if (obj.is_string()) {
+    string_sizes += obj.template get<std::string_view>().size();
+  } else if (obj.is_array()) {
+    ++array_count;
+    for (const auto &child : obj) {
+      walk_internal(int_sum, double_sum, string_sizes, array_count, object_count, child);
+    }
+  } else if (obj.is_object()) {
+    ++object_count;
+    for (const auto &child : obj) {
+      walk_internal(int_sum, double_sum, string_sizes, array_count, object_count, child);
+    }
+  }
+}
+
+template<typename JSON>
+void walk(const JSON &objects)
+{
+  std::int64_t int_sum{};
+  double double_sum{};
+  std::size_t string_sizes{};
+  int array_count{};
+  int object_count{};
+
+  spdlog::info("Starting tree walk");
+
+  walk_internal(int_sum,
+    double_sum,
+    string_sizes,
+    array_count,
+    object_count,
+    objects
+    );
+
+  spdlog::info("{} {} {} {} {}", int_sum, double_sum, string_sizes, array_count, object_count);
+}
+
 int main(int argc, const char **argv)
 {
   try {
@@ -142,8 +193,26 @@ int main(int argc, const char **argv)
       true,// show help if requested
       "schema_validator 0.0.1 Copyright 2022 Jason Turner");// version string
 
+    if (args.at("--walk").asBool()) { 
+      if (args.at("--internal").asBool()) {
+        walk(compiled_json::energyplus_schema::get_energyplus_schema()); 
+      } else {
+        std::filesystem::path schema_file_name = args.at("<schema_file>").asString();
+        spdlog::info("Creating nlohmann::json object");
+        nlohmann::json schema;
+        spdlog::info("Opening json file");
+        std::ifstream schema_file(schema_file_name);
+        spdlog::info("Loading json file");
+        schema_file >> schema;
+        walk(schema);
+      }
+      return EXIT_SUCCESS;
+    }
+
+
     std::filesystem::path schema = args.at("<schema_file>").asString();
     std::filesystem::path doc = args.at("<document_to_validate>").asString();
+
 
     if (args.at("--internal").asBool()) {
       validate_internal(doc);

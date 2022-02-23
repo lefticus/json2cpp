@@ -303,7 +303,7 @@ template<typename CharType> struct basic_json
     }
   }
 
-  constexpr iterator find(const std::string_view key) const
+  constexpr iterator find(const std::basic_string_view<CharType> key) const
   {
     for (auto itr = begin(); itr != end(); ++itr) {
       if (itr.key() == key) { return itr; }
@@ -312,7 +312,7 @@ template<typename CharType> struct basic_json
     return end();
   }
 
-  constexpr const basic_json &operator[](const std::string_view key) const
+  constexpr const basic_json &operator[](const std::basic_string_view<CharType> key) const
   {
     const auto &children = object_data();
 
@@ -369,7 +369,8 @@ template<typename CharType> struct basic_json
       }
     } else if constexpr (std::is_same_v<Type, double>) {
       if (const auto *value = data.get_if_floating_point(); value != nullptr) { return *value; }
-    } else if constexpr (std::is_same_v<Type, std::string_view>) {
+    } else if constexpr (std::is_same_v<Type,
+                           std::basic_string_view<CharType>> || std::is_same_v<Type, std::basic_string<CharType>>) {
       if (const auto *value = data.get_if_string(); value != nullptr) { return *value; }
     } else if constexpr (std::is_same_v<Type, bool>) {
       if (const auto *value = data.get_if_boolean(); value != nullptr) { return *value; }
