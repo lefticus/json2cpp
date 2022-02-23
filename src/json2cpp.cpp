@@ -37,10 +37,10 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
     std::vector<std::string> pairs;
     for (auto itr = value.begin(); itr != value.end(); ++itr) {
       pairs.push_back(fmt::format(
-        "constexpr_json::value_pair_t{{{}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
+        "value_pair_t{{{}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
     }
 
-    lines.push_back(fmt::format("static constexpr std::array<constexpr_json::value_pair_t, {}> object_data_{} = {{",
+    lines.push_back(fmt::format("static constexpr std::array<value_pair_t, {}> object_data_{} = {{",
       pairs.size(),
       current_object_number));
 
@@ -50,7 +50,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 
     lines.emplace_back("};");
 
-    return fmt::format("constexpr_json::object_t{{object_data_{}}}", current_object_number);
+    return fmt::format("object_t{{object_data_{}}}", current_object_number);
   } else if (value.is_array()) {
     std::vector<std::string> entries;
     std::transform(value.begin(), value.end(), std::back_inserter(entries), [&](const auto &child) {
@@ -58,7 +58,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
     });
 
 
-    lines.push_back(fmt::format("static constexpr std::array<constexpr_json::json, {}> object_data_{} = {{{{",
+    lines.push_back(fmt::format("static constexpr std::array<json, {}> object_data_{} = {{{{",
       entries.size(),
       current_object_number));
 
@@ -68,7 +68,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
 
     lines.emplace_back("}};");
 
-    return fmt::format("constexpr_json::array_t{{object_data_{}}}", current_object_number);
+    return fmt::format("array_t{{object_data_{}}}", current_object_number);
 
 
   } else if (value.is_number_float()) {
@@ -80,7 +80,7 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
   } else if (value.is_boolean()) {
     return fmt::format("bool{{{}}}", value.get<bool>());
   } else if (value.is_string()) {
-    return fmt::format("std::string_view{{{}}}", json_string(value.get<std::string>()));
+    return fmt::format("string_view{{{}}}", json_string(value.get<std::string>()));
   }
 
   return "unhandled";
@@ -112,12 +112,12 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
 
   results.impl.emplace_back("#include <json2cpp/constexpr_json.hpp>");
 
-  results.impl.push_back(fmt::format("namespace compiled_json::{} {{", document_name));
+  results.impl.push_back(fmt::format("namespace compiled_json::{} {{\nusing json = constexpr_json::basic_json<char>;\nusing data_t=constexpr_json::data_variant<char>;\nusing string_view=std::basic_string_view<char>;\nusing array_t=constexpr_json::basic_array_t<char>;\nusing object_t=constexpr_json::basic_object_t<char>;\nusing value_pair_t=constexpr_json::basic_value_pair_t<char>;\n", document_name));
 
 
   const auto last_obj_name = compile(json, obj_count, results.impl);
 
-  results.impl.push_back(fmt::format("static constexpr auto document = constexpr_json::json{{{}}};", last_obj_name));
+  results.impl.push_back(fmt::format("static constexpr auto document = json{{{{{}}}}};", last_obj_name));
 
   results.impl.push_back(fmt::format("const constexpr_json::json &get_{}() {{ return document; }}", document_name));
   results.impl.emplace_back("}");

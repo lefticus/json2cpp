@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// Important note: the types in this file are only intended for compile-time construction
+// but consteval doesn't exist in C++17
+
 #ifndef CONSTEXPR_JSON_HPP_INCLUDED
 #define CONSTEXPR_JSON_HPP_INCLUDED
 
@@ -30,7 +33,6 @@ SOFTWARE.
 #include <cstdint>
 #include <stdexcept>
 #include <string_view>
-#include <variant>
 
 namespace constexpr_json {
 template<typename First, typename Second> struct pair
@@ -58,23 +60,138 @@ template<typename T> struct span
   const T *end_;
 };
 
-struct json;
+template<typename CharType> struct basic_json;
+template<typename CharType> using basic_array_t = span<basic_json<CharType>>;
+template<typename CharType> using basic_value_pair_t = pair<std::basic_string_view<CharType>, basic_json<CharType>>;
+template<typename CharType> using basic_object_t = span<basic_value_pair_t<CharType>>;
 
-using array_t = span<json>;
-using value_pair_t = pair<std::string_view, json>;
-using object_t = span<value_pair_t>;
 using binary_t = span<std::uint8_t>;
 
-using data_t = std::
-  variant<std::monostate, bool, binary_t, array_t, object_t, std::int64_t, std::uint64_t, double, std::string_view>;
-
-struct json
+template<typename CharType> struct data_variant
 {
+  struct monostate
+  {
+  };
+
+  union value_t {
+    monostate empty_;
+    bool bool_;
+    binary_t binary_;
+    basic_array_t<CharType> array_;
+    basic_object_t<CharType> object_;
+    std::int64_t int64_t_;
+    std::uint64_t uint64_t_;
+    double double_;
+    std::basic_string_view<CharType> string_view_;
+
+    constexpr explicit value_t() : empty_{} {}
+    constexpr explicit value_t(monostate) : value_t() {}
+    constexpr explicit value_t(bool b) : bool_{ b } {}
+    constexpr explicit value_t(binary_t b) : binary_{ b } {}
+    constexpr explicit value_t(basic_array_t<CharType> a) : array_{ a } {}
+    constexpr explicit value_t(basic_object_t<CharType> o) : object_{ o } {}
+    constexpr explicit value_t(std::int64_t i) : int64_t_{ i } {}
+    constexpr explicit value_t(std::uint64_t i) : uint64_t_{ i } {}
+    constexpr explicit value_t(double d) : double_{ d } {}
+    constexpr explicit value_t(std::basic_string_view<CharType> s) : string_view_{ s } {}
+  };
+
+  enum struct selected_type { empty, boolean, binary, array, object, integer, uinteger, floating_point, string };
+
+  value_t value{ monostate{} };
+  selected_type selected{ selected_type::empty };
+
+  // letting these be implicit measurably improves construction performance
+
+  constexpr data_variant() = default;
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(monostate) : data_variant() {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(bool b) : value{ b }, selected{ selected_type::boolean } {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(basic_array_t<CharType> a) : value{ a }, selected{ selected_type::array } {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(basic_object_t<CharType> o) : value{ o }, selected{ selected_type::object } {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(std::int64_t i) : value{ i }, selected{ selected_type::integer } {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(std::uint64_t i) : value{ i }, selected{ selected_type::uinteger } {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(double d) : value{ d }, selected{ selected_type::floating_point } {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(std::basic_string_view<CharType> s) : value{ s }, selected{ selected_type::string } {}
+
+  [[nodiscard]] constexpr const bool *get_if_boolean() const noexcept
+  {
+    if (selected == selected_type::boolean) {
+      return &value.bool_;
+    } else {
+      return nullptr;
+    }
+  }
+
+  [[nodiscard]] constexpr const basic_array_t<CharType> *get_if_array() const noexcept
+  {
+    if (selected == selected_type::array) {
+      return &value.array_;
+    } else {
+      return nullptr;
+    }
+  }
+  [[nodiscard]] constexpr const basic_object_t<CharType> *get_if_object() const noexcept
+  {
+    if (selected == selected_type::object) {
+      return &value.object_;
+    } else {
+      return nullptr;
+    }
+  }
+  [[nodiscard]] constexpr const std::int64_t *get_if_integer() const noexcept
+  {
+    if (selected == selected_type::integer) {
+      return &value.int64_t_;
+    } else {
+      return nullptr;
+    }
+  }
+  [[nodiscard]] constexpr const std::uint64_t *get_if_uinteger() const noexcept
+  {
+    if (selected == selected_type::uinteger) {
+      return &value.uint64_t_;
+    } else {
+      return nullptr;
+    }
+  }
+
+  [[nodiscard]] constexpr const double *get_if_floating_point() const noexcept
+  {
+    if (selected == selected_type::floating_point) {
+      return &value.double_;
+    } else {
+      return nullptr;
+    }
+  }
+
+  [[nodiscard]] constexpr const std::basic_string_view<CharType> *get_if_string() const noexcept
+  {
+    if (selected == selected_type::string) {
+      return &value.string_view_;
+    } else {
+      return nullptr;
+    }
+  }
+};
+
+template<typename CharType> struct basic_json
+{
+  using data_t = data_variant<CharType>;
+
   struct iterator
   {
-    constexpr explicit iterator(const json &value, std::size_t index = 0) : parent_value_(&value), index_{ index } {}
+    constexpr explicit iterator(const basic_json &value, std::size_t index = 0) : parent_value_(&value), index_{ index }
+    {}
 
-    constexpr const json &operator*() const
+    constexpr const basic_json &operator*() const
     {
       if (parent_value_->is_array()) {
         return (*parent_value_)[index_];
@@ -85,14 +202,14 @@ struct json
       }
     }
 
-    constexpr const json *operator->() const { return &(*(*this)); }
+    constexpr const basic_json *operator->() const { return &(*(*this)); }
 
     constexpr std::size_t index() const { return index_; }
 
-    constexpr const json &value() const { return *(*this); }
+    constexpr const basic_json &value() const { return *(*this); }
 
 
-    constexpr std::string_view key() const
+    constexpr std::basic_string_view<CharType> key() const
     {
       if (parent_value_->is_object()) {
         return std::next(parent_value_->object_data().begin(), static_cast<std::ptrdiff_t>(index_))->first;
@@ -153,7 +270,7 @@ struct json
       return *this;
     }
 
-    const json *parent_value_{ nullptr };
+    const basic_json *parent_value_{ nullptr };
     std::size_t index_{ 0 };
   };
 
@@ -170,14 +287,14 @@ struct json
   constexpr std::size_t size() const noexcept
   {
     if (is_null()) { return 0; }
-    if (is_object()) { return std::get_if<object_t>(&data)->size(); }
+    if (is_object()) { return data.get_if_object()->size(); }
 
-    if (is_array()) { return std::get_if<array_t>(&data)->size(); }
+    if (is_array()) { return data.get_if_array()->size(); }
 
     return 1;
   }
 
-  constexpr const json &operator[](const std::size_t idx) const
+  constexpr const basic_json &operator[](const std::size_t idx) const
   {
     if (const auto &children = array_data(); idx < children.size()) {
       return *std::next(children.begin(), static_cast<std::ptrdiff_t>(idx));
@@ -195,7 +312,7 @@ struct json
     return end();
   }
 
-  constexpr const json &operator[](const std::string_view key) const
+  constexpr const basic_json &operator[](const std::string_view key) const
   {
     const auto &children = object_data();
 
@@ -221,43 +338,41 @@ struct json
     }
   }
 
-  constexpr const array_t &array_data() const
+  constexpr const auto &array_data() const
   {
-    if (const auto *result = std::get_if<array_t>(&data); result != nullptr) {
+    if (const auto *result = data.get_if_array(); result != nullptr) {
       return *result;
     } else {
       throw std::runtime_error("value is not an array type");
     }
   }
 
-  constexpr const object_t &object_data() const
+  constexpr const auto &object_data() const
   {
-    if (const auto *result = std::get_if<object_t>(&data); result != nullptr) {
+    if (const auto *result = data.get_if_object(); result != nullptr) {
       return *result;
     } else {
       throw std::runtime_error("value is not an object type");
     }
   }
 
-  constexpr static json object() { return json{ object_t{} }; }
-
-  constexpr static json array() { return json{ array_t{} }; }
-
+  constexpr static basic_json object() { return basic_json{ data_t{ basic_object_t<CharType>{} } }; }
+  constexpr static basic_json array() { return basic_json{ data_t{ basic_array_t<CharType>{} } }; }
 
   template<typename Type> constexpr Type get() const
   {
     if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t>) {
-      if (const auto *uint_value = std::get_if<std::uint64_t>(&data); uint_value != nullptr) {
+      if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
         return Type(*uint_value);
-      } else if (const auto *value = std::get_if<std::int64_t>(&data); value != nullptr) {
+      } else if (const auto *value = data.get_if_integer(); value != nullptr) {
         return Type(*value);
       }
     } else if constexpr (std::is_same_v<Type, double>) {
-      if (const auto *value = std::get_if<double>(&data); value != nullptr) { return *value; }
+      if (const auto *value = data.get_if_floating_point(); value != nullptr) { return *value; }
     } else if constexpr (std::is_same_v<Type, std::string_view>) {
-      if (const auto *value = std::get_if<std::string_view>(&data); value != nullptr) { return *value; }
+      if (const auto *value = data.get_if_string(); value != nullptr) { return *value; }
     } else if constexpr (std::is_same_v<Type, bool>) {
-      if (const auto *value = std::get_if<bool>(&data); value != nullptr) { return *value; }
+      if (const auto *value = data.get_if_boolean(); value != nullptr) { return *value; }
     } else {
       throw std::runtime_error("Unexpected type for get()");
     }
@@ -265,13 +380,13 @@ struct json
     throw std::runtime_error("Incorrect type for get()");
   }
 
-  constexpr bool is_object() const noexcept { return std::holds_alternative<object_t>(data); }
+  constexpr bool is_object() const noexcept { return data.selected == data_t::selected_type::object; }
 
-  constexpr bool is_array() const noexcept { return std::holds_alternative<array_t>(data); }
+  constexpr bool is_array() const noexcept { return data.selected == data_t::selected_type::array; }
 
-  constexpr bool is_string() const noexcept { return std::holds_alternative<std::string_view>(data); }
+  constexpr bool is_string() const noexcept { return data.selected == data_t::selected_type::string; }
 
-  constexpr bool is_boolean() const noexcept { return std::holds_alternative<bool>(data); }
+  constexpr bool is_boolean() const noexcept { return data.selected == data_t::selected_type::boolean; }
 
   constexpr bool is_structured() const noexcept { return is_object() || is_array(); }
 
@@ -279,7 +394,7 @@ struct json
 
   constexpr double as_number_float() const
   {
-    if (const double *value = std::get_if<double>(&data); value != nullptr) {
+    if (const double *value = data.get_if_floating_point(); value != nullptr) {
       return *value;
     } else {
       throw std::runtime_error("Not a float type");
@@ -287,16 +402,16 @@ struct json
   }
   constexpr double as_boolean() const
   {
-    if (const bool *value = std::get_if<bool>(&data); value != nullptr) {
+    if (const bool *value = data.get_if_boolean(); value != nullptr) {
       return *value;
     } else {
       throw std::runtime_error("Not a boolean type");
     }
   }
 
-  constexpr std::string_view as_string() const
+  constexpr auto as_string() const
   {
-    if (const auto *value = std::get_if<std::string_view>(&data); value != nullptr) {
+    if (const auto *value = data.get_if_string(); value != nullptr) {
       return *value;
     } else {
       throw std::runtime_error("Not a string type");
@@ -307,15 +422,15 @@ struct json
 
   constexpr bool is_number_integer() const noexcept { return is_number_signed() || is_number_unsigned(); }
 
-  constexpr bool is_number_signed() const noexcept { return std::holds_alternative<std::int64_t>(data); }
+  constexpr bool is_number_signed() const noexcept { return data.selected == data_t::selected_type::integer; }
 
-  constexpr bool is_number_unsigned() const noexcept { return std::holds_alternative<std::uint64_t>(data); }
+  constexpr bool is_number_unsigned() const noexcept { return data.selected == data_t::selected_type::uinteger; }
 
-  constexpr bool is_number_float() const noexcept { return std::holds_alternative<double>(data); }
+  constexpr bool is_number_float() const noexcept { return data.selected == data_t::selected_type::floating_point; }
 
-  constexpr bool is_null() const noexcept { return std::holds_alternative<std::monostate>(data); }
+  constexpr bool is_null() const noexcept { return data.selected == data_t::selected_type::empty; }
 
-  constexpr bool is_binary() const noexcept { return std::holds_alternative<binary_t>(data); }
+  constexpr bool is_binary() const noexcept { return data.selected == data_t::selected_type::binary; }
 
   constexpr bool is_primitive() const noexcept
   {
@@ -325,6 +440,10 @@ struct json
   data_t data;
 };
 
+using json = basic_json<char>;
+using object_t = basic_object_t<char>;
+using value_pair_t = basic_value_pair_t<char>;
+using array_t = basic_array_t<char>;
 }// namespace constexpr_json
 
 #endif
