@@ -49,7 +49,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <json2cpp/constexpr_json.hpp>
+#include <json2cpp/json2cpp.hpp>
 #include <string>
 
 #include <utility>
@@ -96,7 +96,7 @@ namespace adapters {
      * Note that this constructor will throw an exception if the value is not
      * an array.
      */
-    explicit json2cppJsonArray(const constexpr_json::json &value) : m_value(value)
+    explicit json2cppJsonArray(const json2cpp::json &value) : m_value(value)
     {
       if (!value.is_array()) { throwRuntimeError("Value is not an array."); }
     }
@@ -126,14 +126,14 @@ namespace adapters {
      *
      * Note that the value returned by this function is a singleton.
      */
-    static const constexpr_json::json &emptyArray()
+    static const json2cpp::json &emptyArray()
     {
-      static const constexpr_json::json array = constexpr_json::json::array();
+      static const json2cpp::json array = json2cpp::json::array();
       return array;
     }
 
     /// Reference to the contained value
-    const constexpr_json::json &m_value;
+    const json2cpp::json &m_value;
   };
 
   /**
@@ -165,7 +165,7 @@ namespace adapters {
      * Note that this constructor will throw an exception if the value is not
      * an object.
      */
-    explicit json2cppJsonObject(const constexpr_json::json &value) : m_value(value)
+    explicit json2cppJsonObject(const json2cpp::json &value) : m_value(value)
     {
       if (!value.is_object()) { throwRuntimeError("Value is not an object."); }
     }
@@ -207,14 +207,14 @@ namespace adapters {
      *
      * Note that the value returned by this function is a singleton.
      */
-    static const constexpr_json::json &emptyObject()
+    static const json2cpp::json &emptyObject()
     {
-      static const constexpr_json::json object = constexpr_json::json::object();
+      static const json2cpp::json object = json2cpp::json::object();
       return object;
     }
 
     /// Reference to the contained object
-    const constexpr_json::json &m_value;
+    const json2cpp::json &m_value;
   };
 
 
@@ -235,7 +235,7 @@ namespace adapters {
      *
      * @param  source  the json2cppJson value to be copied
      */
-    explicit json2cppJsonFrozenValue(constexpr_json::json source) : m_value(std::move(source)) {}
+    explicit json2cppJsonFrozenValue(json2cpp::json source) : m_value(std::move(source)) {}
 
     FrozenValue *clone() const override { return new json2cppJsonFrozenValue(m_value); }
 
@@ -243,7 +243,7 @@ namespace adapters {
 
   private:
     /// Stored json2cppJson value
-    constexpr_json::json m_value;
+    json2cpp::json m_value;
   };
 
 
@@ -268,7 +268,7 @@ namespace adapters {
     json2cppJsonValue() : m_value(emptyObject()) {}
 
     /// Construct a wrapper for a specific json2cppJson value
-    explicit json2cppJsonValue(const constexpr_json::json &value) : m_value(value) {}
+    explicit json2cppJsonValue(const json2cpp::json &value) : m_value(value) {}
 
     /**
      * @brief   Create a new json2cppJsonFrozenValue instance that contains the
@@ -413,14 +413,14 @@ namespace adapters {
 
   private:
     /// Return a reference to an empty object singleton
-    static const constexpr_json::json &emptyObject()
+    static const json2cpp::json &emptyObject()
     {
-      static const constexpr_json::json object = constexpr_json::json::object();
+      static const json2cpp::json object = json2cpp::json::object();
       return object;
     }
 
     /// Reference to the contained json2cppJson value.
-    const constexpr_json::json &m_value;
+    const json2cpp::json &m_value;
   };
 
   /**
@@ -444,7 +444,7 @@ namespace adapters {
     json2cppJsonAdapter() : BasicAdapter() {}
 
     /// Construct a json2cppJsonAdapter containing a specific json2cpp Json object
-    explicit json2cppJsonAdapter(const constexpr_json::json &value) : BasicAdapter(json2cppJsonValue{ value }) {}
+    explicit json2cppJsonAdapter(const json2cpp::json &value) : BasicAdapter(json2cppJsonValue{ value }) {}
   };
 
   /**
@@ -471,7 +471,7 @@ namespace adapters {
      *
      * @param   itr  json2cppJson iterator to store
      */
-    explicit json2cppJsonArrayValueIterator(const constexpr_json::json::const_iterator &itr) : m_itr(itr) {}
+    explicit json2cppJsonArrayValueIterator(const json2cpp::json::const_iterator &itr) : m_itr(itr) {}
 
     /// Returns a json2cppJsonAdapter that contains the value of the current
     /// element.
@@ -522,7 +522,7 @@ namespace adapters {
     void advance(std::ptrdiff_t n) { m_itr += n; }
 
   private:
-    constexpr_json::json::const_iterator m_itr;
+    json2cpp::json::const_iterator m_itr;
   };
 
 
@@ -550,7 +550,7 @@ namespace adapters {
      *
      * @param   itr  json2cppJson iterator to store
      */
-    explicit json2cppJsonObjectMemberIterator(const constexpr_json::json::const_iterator &itr) : m_itr(itr) {}
+    explicit json2cppJsonObjectMemberIterator(const json2cpp::json::const_iterator &itr) : m_itr(itr) {}
 
     /**
      * @brief   Returns a json2cppJsonObjectMember that contains the key and value
@@ -601,13 +601,13 @@ namespace adapters {
 
   private:
     /// Iternal copy of the original json2cppJson iterator
-    constexpr_json::json::const_iterator m_itr;
+    json2cpp::json::const_iterator m_itr;
   };
 
   /// Specialisation of the AdapterTraits template struct for json2cppJsonAdapter.
   template<> struct AdapterTraits<valijson::adapters::json2cppJsonAdapter>
   {
-    typedef constexpr_json::json DocumentType;
+    typedef json2cpp::json DocumentType;
 
     static std::string adapterName() { return "json2cppJsonAdapter"; }
   };

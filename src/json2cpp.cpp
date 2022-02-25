@@ -96,10 +96,10 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
   results.hpp.push_back(fmt::format("#ifndef {}_COMPILED_JSON", document_name));
   results.hpp.push_back(fmt::format("#define {}_COMPILED_JSON", document_name));
 
-  results.hpp.emplace_back("#include <json2cpp/constexpr_json.hpp>");
+  results.hpp.emplace_back("#include <json2cpp/json2cpp.hpp>");
 
   results.hpp.push_back(fmt::format("namespace compiled_json::{} {{", document_name));
-  results.hpp.push_back(fmt::format("  const constexpr_json::json &get_{}();", document_name));
+  results.hpp.push_back(fmt::format("  const json2cpp::json &get_{}();", document_name));
   results.hpp.emplace_back("}");
 
   results.hpp.emplace_back("#endif");
@@ -110,16 +110,16 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
   results.impl.push_back(fmt::format("#ifndef {}_COMPILED_JSON_IMPL", document_name));
   results.impl.push_back(fmt::format("#define {}_COMPILED_JSON_IMPL", document_name));
 
-  results.impl.emplace_back("#include <json2cpp/constexpr_json.hpp>");
+  results.impl.emplace_back("#include <json2cpp/json2cpp.hpp>");
 
-  results.impl.push_back(fmt::format("namespace compiled_json::{} {{\nusing json = constexpr_json::basic_json<char>;\nusing data_t=constexpr_json::data_variant<char>;\nusing string_view=std::basic_string_view<char>;\nusing array_t=constexpr_json::basic_array_t<char>;\nusing object_t=constexpr_json::basic_object_t<char>;\nusing value_pair_t=constexpr_json::basic_value_pair_t<char>;\n", document_name));
+  results.impl.push_back(fmt::format("namespace compiled_json::{} {{\nusing json = json2cpp::basic_json<char>;\nusing data_t=json2cpp::data_variant<char>;\nusing string_view=std::basic_string_view<char>;\nusing array_t=json2cpp::basic_array_t<char>;\nusing object_t=json2cpp::basic_object_t<char>;\nusing value_pair_t=json2cpp::basic_value_pair_t<char>;\n", document_name));
 
 
   const auto last_obj_name = compile(json, obj_count, results.impl);
 
   results.impl.push_back(fmt::format("static constexpr auto document = json{{{{{}}}}};", last_obj_name));
 
-  results.impl.push_back(fmt::format("const constexpr_json::json &get_{}() {{ return document; }}", document_name));
+  results.impl.push_back(fmt::format("const json2cpp::json &get_{}() {{ return document; }}", document_name));
   results.impl.emplace_back("}");
   results.impl.emplace_back("#endif");
 

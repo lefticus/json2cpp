@@ -34,7 +34,7 @@ SOFTWARE.
 #include <stdexcept>
 #include <string_view>
 
-namespace constexpr_json {
+namespace json2cpp {
 template<typename First, typename Second> struct pair
 {
   First first;
@@ -289,12 +289,18 @@ template<typename CharType> struct basic_json
 
   [[nodiscard]] constexpr std::size_t size() const noexcept
   {
-    if (is_null()) { return 0; }
-    if (is_object()) { return data.get_if_object()->size(); }
-    if (is_array()) { return data.get_if_array()->size(); }
+    return size_;
+  }
+
+  [[nodiscard]] static constexpr std::size_t size(const basic_json &obj) noexcept
+  {
+    if (obj.is_null()) { return 0; }
+    if (obj.is_object()) { return obj.data.get_if_object()->size(); }
+    if (obj.is_array()) { return obj.data.get_if_array()->size(); }
 
     return 1;
   }
+
 
   [[nodiscard]] constexpr const basic_json &operator[](const std::size_t idx) const
   {
@@ -413,7 +419,9 @@ template<typename CharType> struct basic_json
     return is_null() || is_string() || is_boolean() || is_number() || is_binary();
   }
 
+
   data_t data;
+  std::size_t size_{size(*this)};
 };
 
 using json = basic_json<char>;
