@@ -10,6 +10,6 @@ TEST_CASE("Basic test of very large energyplus JSON schema")
 
   STATIC_REQUIRE(document["properties"sv]["Version"sv]["patternProperties"sv][".*"sv]["properties"sv]
                          ["version_identifier"sv]["default"sv]
-                           .as_string()
+                           .get<std::string_view>()
                  == "22.1"sv);
 }

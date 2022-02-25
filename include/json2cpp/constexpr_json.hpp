@@ -50,11 +50,14 @@ template<typename T> struct span
 
   constexpr span() : begin_{ nullptr }, end_{ nullptr } {}
 
-  constexpr const T *begin() const { return begin_; }
+  [[nodiscard]] constexpr const T *begin() const noexcept { return begin_; }
 
-  constexpr const T *end() const { return end_; }
+  [[nodiscard]] constexpr const T *end() const noexcept { return end_; }
 
-  constexpr std::size_t size() const { return static_cast<std::size_t>(std::distance(begin_, end_)); }
+  [[nodiscard]] constexpr std::size_t size() const noexcept
+  {
+    return static_cast<std::size_t>(std::distance(begin_, end_));
+  }
 
   const T *begin_;
   const T *end_;
@@ -188,10 +191,11 @@ template<typename CharType> struct basic_json
 
   struct iterator
   {
-    constexpr explicit iterator(const basic_json &value, std::size_t index = 0) : parent_value_(&value), index_{ index }
+    constexpr explicit iterator(const basic_json &value, std::size_t index = 0) noexcept
+      : parent_value_(&value), index_{ index }
     {}
 
-    constexpr const basic_json &operator*() const
+    constexpr const basic_json &operator*() const noexcept
     {
       if (parent_value_->is_array()) {
         return (*parent_value_)[index_];
@@ -202,11 +206,11 @@ template<typename CharType> struct basic_json
       }
     }
 
-    constexpr const basic_json *operator->() const { return &(*(*this)); }
+    constexpr const basic_json *operator->() const noexcept { return &(*(*this)); }
 
-    constexpr std::size_t index() const { return index_; }
+    constexpr std::size_t index() const noexcept { return index_; }
 
-    constexpr const basic_json &value() const { return *(*this); }
+    constexpr const basic_json &value() const noexcept { return *(*this); }
 
 
     constexpr std::basic_string_view<CharType> key() const
@@ -218,53 +222,52 @@ template<typename CharType> struct basic_json
       }
     }
 
-    constexpr bool operator==(const iterator &other) const
+    constexpr bool operator==(const iterator &other) const noexcept
     {
       return other.parent_value_ == parent_value_ && other.index_ == index_;
     }
-    constexpr bool operator!=(const iterator &other) const { return !(*this == other); }
+    constexpr bool operator!=(const iterator &other) const noexcept { return !(*this == other); }
 
 
-    constexpr bool operator<(const iterator &other) const
+    constexpr bool operator<(const iterator &other) const noexcept
     {
-      assert(other.parent_value_ == parent_value_);
-      return index_ < other.index_;
+      return other.parent_value_ == parent_value_ && index_ < other.index_;
     }
 
-    constexpr iterator &operator--()
+    constexpr iterator &operator--() noexcept
     {
       --index_;
       return *this;
     }
 
-    constexpr iterator operator--(int)
+    [[nodiscard]] constexpr iterator operator--(int) noexcept
     {
       iterator result{ *this };
       index_--;
       return result;
     }
 
-    constexpr iterator &operator++()
+    constexpr iterator &operator++() noexcept
     {
       ++index_;
       return *this;
     }
 
-    constexpr iterator operator++(int)
+    [[nodiscard]] constexpr iterator operator++(int) noexcept
     {
       iterator result{ *this };
       index_++;
       return result;
     }
 
-    constexpr iterator &operator+=(const std::ptrdiff_t value)
+    constexpr iterator &operator+=(const std::ptrdiff_t value) noexcept
     {
       index_ = static_cast<std::size_t>(static_cast<std::ptrdiff_t>(index_) + value);
       return *this;
     }
 
 
-    constexpr iterator &operator+=(const std::size_t value)
+    constexpr iterator &operator+=(const std::size_t value) noexcept
     {
       index_ += value;
       return *this;
@@ -276,25 +279,24 @@ template<typename CharType> struct basic_json
 
   using const_iterator = iterator;
 
-  constexpr iterator begin() const { return iterator{ *this }; }
+  [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{ *this }; }
 
-  constexpr iterator end() const { return iterator{ *this, size() }; }
+  [[nodiscard]] constexpr iterator end() const noexcept { return iterator{ *this, size() }; }
 
-  constexpr iterator cbegin() const { return begin(); }
+  [[nodiscard]] constexpr iterator cbegin() const noexcept { return begin(); }
 
-  constexpr iterator cend() const { return end(); }
+  [[nodiscard]] constexpr iterator cend() const noexcept { return end(); }
 
-  constexpr std::size_t size() const noexcept
+  [[nodiscard]] constexpr std::size_t size() const noexcept
   {
     if (is_null()) { return 0; }
     if (is_object()) { return data.get_if_object()->size(); }
-
     if (is_array()) { return data.get_if_array()->size(); }
 
     return 1;
   }
 
-  constexpr const basic_json &operator[](const std::size_t idx) const
+  [[nodiscard]] constexpr const basic_json &operator[](const std::size_t idx) const
   {
     if (const auto &children = array_data(); idx < children.size()) {
       return *std::next(children.begin(), static_cast<std::ptrdiff_t>(idx));
@@ -303,7 +305,7 @@ template<typename CharType> struct basic_json
     }
   }
 
-  constexpr iterator find(const std::basic_string_view<CharType> key) const
+  [[nodiscard]] constexpr iterator find(const std::basic_string_view<CharType> key) const noexcept
   {
     for (auto itr = begin(); itr != end(); ++itr) {
       if (itr.key() == key) { return itr; }
@@ -312,7 +314,7 @@ template<typename CharType> struct basic_json
     return end();
   }
 
-  constexpr const basic_json &operator[](const std::basic_string_view<CharType> key) const
+  [[nodiscard]] constexpr const basic_json &operator[](const std::basic_string_view<CharType> key) const
   {
     const auto &children = object_data();
 
@@ -359,7 +361,7 @@ template<typename CharType> struct basic_json
   constexpr static basic_json object() { return basic_json{ data_t{ basic_object_t<CharType>{} } }; }
   constexpr static basic_json array() { return basic_json{ data_t{ basic_array_t<CharType>{} } }; }
 
-  template<typename Type> constexpr Type get() const
+  template<typename Type> [[nodiscard]] constexpr Type get() const
   {
     if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t>) {
       if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
@@ -381,59 +383,32 @@ template<typename CharType> struct basic_json
     throw std::runtime_error("Incorrect type for get()");
   }
 
-  constexpr bool is_object() const noexcept { return data.selected == data_t::selected_type::object; }
+  [[nodiscard]] constexpr bool is_object() const noexcept { return data.selected == data_t::selected_type::object; }
+  [[nodiscard]] constexpr bool is_array() const noexcept { return data.selected == data_t::selected_type::array; }
+  [[nodiscard]] constexpr bool is_string() const noexcept { return data.selected == data_t::selected_type::string; }
+  [[nodiscard]] constexpr bool is_boolean() const noexcept { return data.selected == data_t::selected_type::boolean; }
+  [[nodiscard]] constexpr bool is_structured() const noexcept { return is_object() || is_array(); }
+  [[nodiscard]] constexpr bool is_number() const noexcept { return is_number_integer() || is_number_float(); }
+  [[nodiscard]] constexpr bool is_number_integer() const noexcept { return is_number_signed() || is_number_unsigned(); }
+  [[nodiscard]] constexpr bool is_null() const noexcept { return data.selected == data_t::selected_type::empty; }
+  [[nodiscard]] constexpr bool is_binary() const noexcept { return data.selected == data_t::selected_type::binary; }
 
-  constexpr bool is_array() const noexcept { return data.selected == data_t::selected_type::array; }
-
-  constexpr bool is_string() const noexcept { return data.selected == data_t::selected_type::string; }
-
-  constexpr bool is_boolean() const noexcept { return data.selected == data_t::selected_type::boolean; }
-
-  constexpr bool is_structured() const noexcept { return is_object() || is_array(); }
-
-  constexpr bool is_number() const noexcept { return is_number_integer() || is_number_float(); }
-
-  constexpr double as_number_float() const
+  [[nodiscard]] constexpr bool is_number_signed() const noexcept
   {
-    if (const double *value = data.get_if_floating_point(); value != nullptr) {
-      return *value;
-    } else {
-      throw std::runtime_error("Not a float type");
-    }
-  }
-  constexpr double as_boolean() const
-  {
-    if (const bool *value = data.get_if_boolean(); value != nullptr) {
-      return *value;
-    } else {
-      throw std::runtime_error("Not a boolean type");
-    }
+    return data.selected == data_t::selected_type::integer;
   }
 
-  constexpr auto as_string() const
+  [[nodiscard]] constexpr bool is_number_unsigned() const noexcept
   {
-    if (const auto *value = data.get_if_string(); value != nullptr) {
-      return *value;
-    } else {
-      throw std::runtime_error("Not a string type");
-    }
+    return data.selected == data_t::selected_type::uinteger;
   }
 
-  constexpr operator double() const { return as_number_float(); }
+  [[nodiscard]] constexpr bool is_number_float() const noexcept
+  {
+    return data.selected == data_t::selected_type::floating_point;
+  }
 
-  constexpr bool is_number_integer() const noexcept { return is_number_signed() || is_number_unsigned(); }
-
-  constexpr bool is_number_signed() const noexcept { return data.selected == data_t::selected_type::integer; }
-
-  constexpr bool is_number_unsigned() const noexcept { return data.selected == data_t::selected_type::uinteger; }
-
-  constexpr bool is_number_float() const noexcept { return data.selected == data_t::selected_type::floating_point; }
-
-  constexpr bool is_null() const noexcept { return data.selected == data_t::selected_type::empty; }
-
-  constexpr bool is_binary() const noexcept { return data.selected == data_t::selected_type::binary; }
-
-  constexpr bool is_primitive() const noexcept
+  [[nodiscard]] constexpr bool is_primitive() const noexcept
   {
     return is_null() || is_string() || is_boolean() || is_number() || is_binary();
   }
