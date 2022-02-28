@@ -366,25 +366,35 @@ template<typename CharType> struct basic_json
 
   template<typename Type>[[nodiscard]] constexpr Type get() const
   {
+    bool error = false;
     if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t>) {
       if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
         return Type(*uint_value);
       } else if (const auto *value = data.get_if_integer(); value != nullptr) {
         return Type(*value);
       }
-      throw std::runtime_error("Incorrect type for get(), integer requested");
+      error = true;
     } else if constexpr (std::is_same_v<Type, double>) {
       if (const auto *value = data.get_if_floating_point(); value != nullptr) { return *value; }
-      throw std::runtime_error("Incorrect type for get(), double requested");
+      error = true;
     } else if constexpr (std::is_same_v<Type,
                            std::basic_string_view<CharType>> || std::is_same_v<Type, std::basic_string<CharType>>) {
       if (const auto *value = data.get_if_string(); value != nullptr) { return *value; }
-      throw std::runtime_error("Incorrect type for get(), string requested");
+      error = true;
     } else if constexpr (std::is_same_v<Type, bool>) {
       if (const auto *value = data.get_if_boolean(); value != nullptr) { return *value; }
-      throw std::runtime_error("Incorrect type for get(), boolean requested");
+      error = true;
     } else {
       throw std::runtime_error("Unexpected type for get()");
+    }
+
+    if (error) {
+      // we have this boolean only because of a broken gcc implementation
+      // that incorrect says this is not a constexpr function
+      throw std::runtime_error("Type mismatch in get()");
+    } else {
+      // this code is terrible and it makes me sad
+      return Type{};
     }
   }
 
