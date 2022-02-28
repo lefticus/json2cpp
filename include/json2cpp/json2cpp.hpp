@@ -287,10 +287,7 @@ template<typename CharType> struct basic_json
 
   [[nodiscard]] constexpr iterator cend() const noexcept { return end(); }
 
-  [[nodiscard]] constexpr std::size_t size() const noexcept
-  {
-    return size_;
-  }
+  [[nodiscard]] constexpr std::size_t size() const noexcept { return size_; }
 
   [[nodiscard]] static constexpr std::size_t size(const basic_json &obj) noexcept
   {
@@ -367,7 +364,7 @@ template<typename CharType> struct basic_json
   constexpr static basic_json object() { return basic_json{ data_t{ basic_object_t<CharType>{} } }; }
   constexpr static basic_json array() { return basic_json{ data_t{ basic_array_t<CharType>{} } }; }
 
-  template<typename Type> [[nodiscard]] constexpr Type get() const
+  template<typename Type>[[nodiscard]] constexpr Type get() const
   {
     if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t>) {
       if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
@@ -375,18 +372,20 @@ template<typename CharType> struct basic_json
       } else if (const auto *value = data.get_if_integer(); value != nullptr) {
         return Type(*value);
       }
+      throw std::runtime_error("Incorrect type for get(), integer requested");
     } else if constexpr (std::is_same_v<Type, double>) {
       if (const auto *value = data.get_if_floating_point(); value != nullptr) { return *value; }
+      throw std::runtime_error("Incorrect type for get(), double requested");
     } else if constexpr (std::is_same_v<Type,
                            std::basic_string_view<CharType>> || std::is_same_v<Type, std::basic_string<CharType>>) {
       if (const auto *value = data.get_if_string(); value != nullptr) { return *value; }
+      throw std::runtime_error("Incorrect type for get(), string requested");
     } else if constexpr (std::is_same_v<Type, bool>) {
       if (const auto *value = data.get_if_boolean(); value != nullptr) { return *value; }
+      throw std::runtime_error("Incorrect type for get(), boolean requested");
     } else {
       throw std::runtime_error("Unexpected type for get()");
     }
-
-    throw std::runtime_error("Incorrect type for get()");
   }
 
   [[nodiscard]] constexpr bool is_object() const noexcept { return data.selected == data_t::selected_type::object; }
@@ -421,13 +420,13 @@ template<typename CharType> struct basic_json
 
 
   data_t data;
-  std::size_t size_{size(*this)};
+  std::size_t size_{ size(*this) };
 };
 
 using json = basic_json<char>;
 using object_t = basic_object_t<char>;
 using value_pair_t = basic_value_pair_t<char>;
 using array_t = basic_array_t<char>;
-}// namespace constexpr_json
+}// namespace json2cpp
 
 #endif
