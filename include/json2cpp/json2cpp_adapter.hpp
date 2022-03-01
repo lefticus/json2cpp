@@ -49,7 +49,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <json2cpp/json2cpp.hpp>
+#include "json2cpp.hpp"
 #include <string>
 
 #include <utility>
