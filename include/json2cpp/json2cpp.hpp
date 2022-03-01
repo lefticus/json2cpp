@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 // Important note: the types in this file are only intended for compile-time construction
-// but consteval doesn't exist in C++17
+// but consteval doesn't exist in C++17, and we're targeting C++17
 
 #ifndef CONSTEXPR_JSON_HPP_INCLUDED
 #define CONSTEXPR_JSON_HPP_INCLUDED
@@ -34,6 +34,7 @@ SOFTWARE.
 #include <stdexcept>
 #include <string_view>
 
+// simple pair to speed up compilation a bit compared to std::pair
 namespace json2cpp {
 template<typename First, typename Second> struct pair
 {
@@ -41,6 +42,7 @@ template<typename First, typename Second> struct pair
   Second second;
 };
 
+// simple span because std::span is not in C++17
 template<typename T> struct span
 {
   template<std::size_t Size>
@@ -388,6 +390,8 @@ template<typename CharType> struct basic_json
 
   template<typename Type>[[nodiscard]] constexpr auto get() const
   {
+    // I don't like this level of implicit conversions in the `get()` function,
+    // but it's necessary for API compatibility with nlohmann::json
     if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t> || std::is_same_v<Type, double>) {
       if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
         return Type(*uint_value);
@@ -396,8 +400,6 @@ template<typename CharType> struct basic_json
       } else if (const auto *fpvalue = data.get_if_floating_point(); fpvalue != nullptr) {
         return Type(*fpvalue);
       } else {
-//        std::stringstream ss;
- //       ss << is_string() << is_object() << is_array() << is_string() << is_boolean() << is_structured() << is_number() << is_null() << is_binary() << is_primitive();
         throw std::runtime_error("Unexpected type: number requested");// + ss.str() );
       }
     } else if constexpr (std::is_same_v<Type,
