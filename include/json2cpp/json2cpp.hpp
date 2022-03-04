@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 // Important note: the types in this file are only intended for compile-time construction
-// but consteval doesn't exist in C++17
+// but consteval doesn't exist in C++17, and we're targeting C++17
 
 #ifndef CONSTEXPR_JSON_HPP_INCLUDED
 #define CONSTEXPR_JSON_HPP_INCLUDED
@@ -34,6 +34,7 @@ SOFTWARE.
 #include <stdexcept>
 #include <string_view>
 
+// simple pair to speed up compilation a bit compared to std::pair
 namespace json2cpp {
 template<typename First, typename Second> struct pair
 {
@@ -41,6 +42,7 @@ template<typename First, typename Second> struct pair
   Second second;
 };
 
+// simple span because std::span is not in C++17
 template<typename T> struct span
 {
   template<std::size_t Size>
@@ -191,6 +193,8 @@ template<typename CharType> struct basic_json
 
   struct iterator
   {
+    constexpr iterator() noexcept = default;
+
     constexpr explicit iterator(const basic_json &value, std::size_t index = 0) noexcept
       : parent_value_(&value), index_{ index }
     {}
@@ -287,10 +291,9 @@ template<typename CharType> struct basic_json
 
   [[nodiscard]] constexpr iterator cend() const noexcept { return end(); }
 
-  [[nodiscard]] constexpr std::size_t size() const noexcept
-  {
-    return size_;
-  }
+  [[nodiscard]] constexpr std::size_t size() const noexcept { return size_; }
+
+  [[nodiscard]] constexpr bool empty() const noexcept { return size_ == 0; }
 
   [[nodiscard]] static constexpr std::size_t size(const basic_json &obj) noexcept
   {
@@ -311,16 +314,7 @@ template<typename CharType> struct basic_json
     }
   }
 
-  [[nodiscard]] constexpr iterator find(const std::basic_string_view<CharType> key) const noexcept
-  {
-    for (auto itr = begin(); itr != end(); ++itr) {
-      if (itr.key() == key) { return itr; }
-    }
-
-    return end();
-  }
-
-  [[nodiscard]] constexpr const basic_json &operator[](const std::basic_string_view<CharType> key) const
+  [[nodiscard]] constexpr const basic_json &at(const std::basic_string_view<CharType> key) const
   {
     const auto &children = object_data();
 
@@ -346,6 +340,33 @@ template<typename CharType> struct basic_json
     }
   }
 
+  template<typename Key>[[nodiscard]] constexpr std::size_t count(const Key &key) const noexcept
+  {
+    if (is_object()) {
+      const auto found = find(key);
+      if (found == end()) {
+        return 0;
+      } else {
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  [[nodiscard]] constexpr iterator find(const std::basic_string_view<CharType> key) const noexcept
+  {
+    for (auto itr = begin(); itr != end(); ++itr) {
+      if (itr.key() == key) { return itr; }
+    }
+
+    return end();
+  }
+
+  [[nodiscard]] constexpr const basic_json &operator[](const std::basic_string_view<CharType> key) const
+  {
+    return at(key);
+  }
+
   constexpr const auto &array_data() const
   {
     if (const auto *result = data.get_if_array(); result != nullptr) {
@@ -367,26 +388,35 @@ template<typename CharType> struct basic_json
   constexpr static basic_json object() { return basic_json{ data_t{ basic_object_t<CharType>{} } }; }
   constexpr static basic_json array() { return basic_json{ data_t{ basic_array_t<CharType>{} } }; }
 
-  template<typename Type> [[nodiscard]] constexpr Type get() const
+  template<typename Type>[[nodiscard]] constexpr auto get() const
   {
-    if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t>) {
+    // I don't like this level of implicit conversions in the `get()` function,
+    // but it's necessary for API compatibility with nlohmann::json
+    if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t> || std::is_same_v<Type, double>) {
       if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
         return Type(*uint_value);
       } else if (const auto *value = data.get_if_integer(); value != nullptr) {
         return Type(*value);
+      } else if (const auto *fpvalue = data.get_if_floating_point(); fpvalue != nullptr) {
+        return Type(*fpvalue);
+      } else {
+        throw std::runtime_error("Unexpected type: number requested");// + ss.str() );
       }
-    } else if constexpr (std::is_same_v<Type, double>) {
-      if (const auto *value = data.get_if_floating_point(); value != nullptr) { return *value; }
     } else if constexpr (std::is_same_v<Type,
                            std::basic_string_view<CharType>> || std::is_same_v<Type, std::basic_string<CharType>>) {
       if (const auto *value = data.get_if_string(); value != nullptr) { return *value; }
+      else {
+        throw std::runtime_error("Unexpected type: string-like requested");
+      }
     } else if constexpr (std::is_same_v<Type, bool>) {
       if (const auto *value = data.get_if_boolean(); value != nullptr) { return *value; }
+      else {
+        throw std::runtime_error("Unexpected type: bool requested");
+      }
     } else {
       throw std::runtime_error("Unexpected type for get()");
     }
 
-    throw std::runtime_error("Incorrect type for get()");
   }
 
   [[nodiscard]] constexpr bool is_object() const noexcept { return data.selected == data_t::selected_type::object; }
@@ -421,13 +451,13 @@ template<typename CharType> struct basic_json
 
 
   data_t data;
-  std::size_t size_{size(*this)};
+  std::size_t size_{ basic_json::size(*this) };
 };
 
 using json = basic_json<char>;
 using object_t = basic_object_t<char>;
 using value_pair_t = basic_value_pair_t<char>;
 using array_t = basic_array_t<char>;
-}// namespace constexpr_json
+}// namespace json2cpp
 
 #endif
