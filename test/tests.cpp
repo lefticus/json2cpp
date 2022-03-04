@@ -3,7 +3,7 @@
 
 TEST_CASE("Can read object size")
 {
-  const auto &document = compiled_json::test_json::get_test_json();
+  const auto &document = compiled_json::test_json::get();
 
   REQUIRE(document.size() == 1);
 }
@@ -11,7 +11,7 @@ TEST_CASE("Can read object size")
 
 TEST_CASE("Can iterate object")
 {
-  const auto &document = compiled_json::test_json::get_test_json();
+  const auto &document = compiled_json::test_json::get();
 
   std::size_t elements = 0;
   for (const auto &json : document) {
@@ -24,6 +24,6 @@ TEST_CASE("Can iterate object")
 
 TEST_CASE("Can read iterator key")
 {
-  const auto &document = compiled_json::test_json::get_test_json();
+  const auto &document = compiled_json::test_json::get();
   REQUIRE(document.begin().key() == "glossary");
 }

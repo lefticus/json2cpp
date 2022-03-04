@@ -20,7 +20,7 @@ TEST_CASE("Can load a valijson schema")
   Schema mySchema;
   SchemaParser parser;
   json2cppJsonAdapter mySchemaAdapter(
-    compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
+    compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 }
 
@@ -37,11 +37,11 @@ TEST_CASE("Validation fails where expected")
   Schema mySchema;
   SchemaParser parser;
   json2cppJsonAdapter mySchemaAdapter(
-    compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
+    compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
-  json2cppJsonAdapter myTargetAdapter(compiled_json::array_doubles_10_20_30_40::get_array_doubles_10_20_30_40());
+  json2cppJsonAdapter myTargetAdapter(compiled_json::array_doubles_10_20_30_40::get());
 
   REQUIRE_FALSE(validator.validate(mySchema, myTargetAdapter, nullptr));
 }
@@ -59,11 +59,11 @@ TEST_CASE("Can validate a document")
   Schema mySchema;
   SchemaParser parser;
   json2cppJsonAdapter mySchemaAdapter(
-    compiled_json::allof_integers_and_numbers_schema::get_allof_integers_and_numbers_schema());
+    compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
-  json2cppJsonAdapter myTargetAdapter(compiled_json::array_integers_10_20_30_40::get_array_integers_10_20_30_40());
+  json2cppJsonAdapter myTargetAdapter(compiled_json::array_integers_10_20_30_40::get());
 
   REQUIRE(validator.validate(mySchema, myTargetAdapter, nullptr));
 }

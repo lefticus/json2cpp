@@ -4,7 +4,7 @@
 
 TEST_CASE("Basic test of very large energyplus JSON schema")
 {
-  constexpr auto &document = compiled_json::schema::document;// NOLINT No, I'm not going to mark this `const`
+  constexpr auto &document = compiled_json::schema::impl::document;// NOLINT No, I'm not going to mark this `const`
 
   using namespace std::literals::string_view_literals;
 

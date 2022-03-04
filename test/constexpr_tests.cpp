@@ -4,14 +4,14 @@
 
 TEST_CASE("Can read object size")
 {
-  constexpr auto &document = compiled_json::test_json::document;// NOLINT No, I'm not going to mark this `const`
+  constexpr auto &document = compiled_json::test_json::impl::document;// NOLINT No, I'm not going to mark this `const`
 
   STATIC_REQUIRE(document.size() == 1);
 }
 
 constexpr auto count_elements()
 {
-  constexpr auto &document = compiled_json::test_json::document;// NOLINT No, I'm not going to mark this `const`
+  constexpr auto &document = compiled_json::test_json::impl::document;// NOLINT No, I'm not going to mark this `const`
 
   std::size_t elements = 0;
   for (const auto &json : document) {
@@ -23,11 +23,11 @@ constexpr auto count_elements()
   return elements;
 }
 
-TEST_CASE("Can iterate object") { STATIC_REQUIRE(count_elements() == compiled_json::test_json::document.size()); }
+TEST_CASE("Can iterate object") { STATIC_REQUIRE(count_elements() == compiled_json::test_json::impl::document.size()); }
 
 TEST_CASE("Can read iterator key")
 {
-  constexpr auto &document = compiled_json::test_json::document;// NOLINT No, I'm not going to mark this `const`
+  constexpr auto &document = compiled_json::test_json::impl::document;// NOLINT No, I'm not going to mark this `const`
 
   STATIC_REQUIRE(document.begin().key() == "glossary");
 }

@@ -114,7 +114,7 @@ bool validate_internal(const std::filesystem::path &file_to_validate)
   spdlog::info("Creating SchemaParser object");
   SchemaParser parser;
   spdlog::info("Creating json2cppJsonAdapter object");
-  json2cppJsonAdapter mySchemaAdapter(compiled_json::energyplus_schema::get_energyplus_schema());
+  json2cppJsonAdapter mySchemaAdapter(compiled_json::energyplus_schema::get());
   spdlog::info("parser.populateSchema object");
   parser.populateSchema(mySchemaAdapter, mySchema);
 
@@ -195,7 +195,7 @@ int main(int argc, const char **argv)
 
     if (args.at("--walk").asBool()) { 
       if (args.at("--internal").asBool()) {
-        walk(compiled_json::energyplus_schema::get_energyplus_schema()); 
+        walk(compiled_json::energyplus_schema::get()); 
       } else {
         std::filesystem::path schema_file_name = args.at("<schema_file>").asString();
         spdlog::info("Creating nlohmann::json object");
