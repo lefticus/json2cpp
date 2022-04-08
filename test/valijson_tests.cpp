@@ -19,8 +19,7 @@ TEST_CASE("Can load a valijson schema")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(
-    compiled_json::allof_integers_and_numbers_schema::get());
+  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 }
 
@@ -36,8 +35,7 @@ TEST_CASE("Validation fails where expected")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(
-    compiled_json::allof_integers_and_numbers_schema::get());
+  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
@@ -58,8 +56,7 @@ TEST_CASE("Can validate a document")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(
-    compiled_json::allof_integers_and_numbers_schema::get());
+  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
