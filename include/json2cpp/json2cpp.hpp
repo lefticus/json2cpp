@@ -199,7 +199,7 @@ template<typename CharType> struct basic_json
       : parent_value_(&value), index_{ index }
     {}
 
-    constexpr const basic_json &operator*() const noexcept
+    constexpr const basic_json &operator*() const
     {
       if (parent_value_->is_array()) {
         return (*parent_value_)[index_];
@@ -340,7 +340,7 @@ template<typename CharType> struct basic_json
     }
   }
 
-  template<typename Key>[[nodiscard]] constexpr std::size_t count(const Key &key) const noexcept
+  template<typename Key>[[nodiscard]] constexpr std::size_t count(const Key &key) const
   {
     if (is_object()) {
       const auto found = find(key);
@@ -353,7 +353,7 @@ template<typename CharType> struct basic_json
     return 0;
   }
 
-  [[nodiscard]] constexpr iterator find(const std::basic_string_view<CharType> key) const noexcept
+  [[nodiscard]] constexpr iterator find(const std::basic_string_view<CharType> key) const
   {
     for (auto itr = begin(); itr != end(); ++itr) {
       if (itr.key() == key) { return itr; }
@@ -392,7 +392,8 @@ template<typename CharType> struct basic_json
   {
     // I don't like this level of implicit conversions in the `get()` function,
     // but it's necessary for API compatibility with nlohmann::json
-    if constexpr (std::is_same_v<Type, std::uint64_t> || std::is_same_v<Type, std::int64_t> || std::is_same_v<Type, double>) {
+    if constexpr (std::is_same_v<Type,
+                    std::uint64_t> || std::is_same_v<Type, std::int64_t> || std::is_same_v<Type, double>) {
       if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
         return Type(*uint_value);
       } else if (const auto *value = data.get_if_integer(); value != nullptr) {
@@ -404,19 +405,20 @@ template<typename CharType> struct basic_json
       }
     } else if constexpr (std::is_same_v<Type,
                            std::basic_string_view<CharType>> || std::is_same_v<Type, std::basic_string<CharType>>) {
-      if (const auto *value = data.get_if_string(); value != nullptr) { return *value; }
-      else {
+      if (const auto *value = data.get_if_string(); value != nullptr) {
+        return *value;
+      } else {
         throw std::runtime_error("Unexpected type: string-like requested");
       }
     } else if constexpr (std::is_same_v<Type, bool>) {
-      if (const auto *value = data.get_if_boolean(); value != nullptr) { return *value; }
-      else {
+      if (const auto *value = data.get_if_boolean(); value != nullptr) {
+        return *value;
+      } else {
         throw std::runtime_error("Unexpected type: bool requested");
       }
     } else {
       throw std::runtime_error("Unexpected type for get()");
     }
-
   }
 
   [[nodiscard]] constexpr bool is_object() const noexcept { return data.selected == data_t::selected_type::object; }
