@@ -163,8 +163,7 @@ void walk_internal(std::int64_t &int_sum,
   }
 }
 
-template<typename JSON>
-void walk(const JSON &objects)
+template<typename JSON> void walk(const JSON &objects)
 {
   std::int64_t int_sum{};
   double double_sum{};
@@ -174,13 +173,7 @@ void walk(const JSON &objects)
 
   spdlog::info("Starting tree walk");
 
-  walk_internal(int_sum,
-    double_sum,
-    string_sizes,
-    array_count,
-    object_count,
-    objects
-    );
+  walk_internal(int_sum, double_sum, string_sizes, array_count, object_count, objects);
 
   spdlog::info("{} {} {} {} {}", int_sum, double_sum, string_sizes, array_count, object_count);
 }
@@ -193,9 +186,9 @@ int main(int argc, const char **argv)
       true,// show help if requested
       "schema_validator 0.0.1 Copyright 2022 Jason Turner");// version string
 
-    if (args.at("--walk").asBool()) { 
+    if (args.at("--walk").asBool()) {
       if (args.at("--internal").asBool()) {
-        walk(compiled_json::energyplus_schema::get()); 
+        walk(compiled_json::energyplus_schema::get());
       } else {
         std::filesystem::path schema_file_name = args.at("<schema_file>").asString();
         spdlog::info("Creating nlohmann::json object");

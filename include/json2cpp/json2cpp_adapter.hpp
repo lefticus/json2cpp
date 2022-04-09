@@ -494,7 +494,7 @@ namespace adapters {
 
     bool operator!=(const json2cppJsonArrayValueIterator &other) const { return !(m_itr == other.m_itr); }
 
-    // cppcheck-suppress functionConst 
+    // cppcheck-suppress functionConst
     const json2cppJsonArrayValueIterator &operator++()
     {
       ++m_itr;
@@ -502,7 +502,7 @@ namespace adapters {
       return *this;
     }
 
-    // cppcheck-suppress functionConst 
+    // cppcheck-suppress functionConst
     json2cppJsonArrayValueIterator operator++(int)
     {
       json2cppJsonArrayValueIterator iterator_pre(m_itr);
@@ -510,7 +510,7 @@ namespace adapters {
       return iterator_pre;
     }
 
-    // cppcheck-suppress functionConst 
+    // cppcheck-suppress functionConst
     const json2cppJsonArrayValueIterator &operator--()
     {
       --m_itr;
@@ -575,7 +575,7 @@ namespace adapters {
 
     bool operator!=(const json2cppJsonObjectMemberIterator &other) const { return !(m_itr == other.m_itr); }
 
-    // cppcheck-suppress functionConst 
+    // cppcheck-suppress functionConst
     const json2cppJsonObjectMemberIterator &operator++()
     {
       ++m_itr;
@@ -583,7 +583,7 @@ namespace adapters {
       return *this;
     }
 
-    // cppcheck-suppress functionConst 
+    // cppcheck-suppress functionConst
     json2cppJsonObjectMemberIterator operator++(int)
     {
       json2cppJsonObjectMemberIterator iterator_pre(m_itr);
@@ -591,7 +591,7 @@ namespace adapters {
       return iterator_pre;
     }
 
-    // cppcheck-suppress functionConst 
+    // cppcheck-suppress functionConst
     const json2cppJsonObjectMemberIterator &operator--()
     {
       --m_itr;

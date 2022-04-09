@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 
-
 #include "json2cpp.hpp"
 #include <fstream>
 
@@ -36,13 +35,12 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
   if (value.is_object()) {
     std::vector<std::string> pairs;
     for (auto itr = value.begin(); itr != value.end(); ++itr) {
-      pairs.push_back(fmt::format(
-        "value_pair_t{{{}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
+      pairs.push_back(
+        fmt::format("value_pair_t{{{}, {{{}}}}},", json_string(itr.key()), compile(*itr, obj_count, lines)));
     }
 
-    lines.push_back(fmt::format("inline constexpr std::array<value_pair_t, {}> object_data_{} = {{",
-      pairs.size(),
-      current_object_number));
+    lines.push_back(fmt::format(
+      "inline constexpr std::array<value_pair_t, {}> object_data_{} = {{", pairs.size(), current_object_number));
 
     std::transform(pairs.begin(), pairs.end(), std::back_inserter(lines), [](const auto &pair) {
       return fmt::format("  {}", pair);
@@ -58,9 +56,8 @@ std::string compile(const nlohmann::json &value, std::size_t &obj_count, std::ve
     });
 
 
-    lines.push_back(fmt::format("inline constexpr std::array<json, {}> object_data_{} = {{{{",
-      entries.size(),
-      current_object_number));
+    lines.push_back(fmt::format(
+      "inline constexpr std::array<json, {}> object_data_{} = {{{{", entries.size(), current_object_number));
 
     std::transform(entries.begin(), entries.end(), std::back_inserter(lines), [](const auto &entry) {
       return fmt::format("  {}", entry);
@@ -112,8 +109,7 @@ compile_results compile(const std::string_view document_name, const nlohmann::js
 
   results.impl.emplace_back("#include <json2cpp/json2cpp.hpp>");
 
-  results.impl.push_back(
-      fmt::format(R"(
+  results.impl.push_back(fmt::format(R"(
 namespace compiled_json::{}::impl {{
 
 using json = json2cpp::basic_json<char>;
@@ -123,7 +119,8 @@ using array_t=json2cpp::basic_array_t<char>;
 using object_t=json2cpp::basic_object_t<char>;
 using value_pair_t=json2cpp::basic_value_pair_t<char>;
 
-)", document_name));
+)",
+    document_name));
 
 
   const auto last_obj_name = compile(json, obj_count, results.impl);
@@ -136,7 +133,8 @@ inline constexpr auto document = json{{{{{}}}}};
 
 #endif
 
-)", last_obj_name));
+)",
+    last_obj_name));
 
 
   spdlog::info("{} JSON objects processed.", obj_count);
@@ -178,7 +176,10 @@ void write_compilation([[maybe_unused]] std::string_view document_name,
 
   std::ofstream cpp(cpp_name);
   cpp << fmt::format("#include \"{}\"\n", impl_name.filename().string());
-  cpp << fmt::format("namespace compiled_json::{} {{\nconst json2cpp::json &get() {{ return compiled_json::{}::impl::document; }}\n}}\n", document_name, document_name);
+  cpp << fmt::format(
+    "namespace compiled_json::{} {{\nconst json2cpp::json &get() {{ return compiled_json::{}::impl::document; }}\n}}\n",
+    document_name,
+    document_name);
 }
 
 void compile_to(const std::string_view document_name,

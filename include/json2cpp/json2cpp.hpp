@@ -373,7 +373,7 @@ template<typename CharType> struct basic_json
     }
   }
 
-  template<typename Key>[[nodiscard]] constexpr std::size_t count(const Key &key) const
+  template<typename Key> [[nodiscard]] constexpr std::size_t count(const Key &key) const
   {
     if (is_object()) {
       const auto found = find(key);
@@ -421,7 +421,7 @@ template<typename CharType> struct basic_json
   constexpr static basic_json object() { return basic_json{ data_t{ basic_object_t<CharType>{} } }; }
   constexpr static basic_json array() { return basic_json{ data_t{ basic_array_t<CharType>{} } }; }
 
-  template<typename Type>[[nodiscard]] constexpr auto get() const
+  template<typename Type> [[nodiscard]] constexpr auto get() const
   {
     // I don't like this level of implicit conversions in the `get()` function,
     // but it's necessary for API compatibility with nlohmann::json
