@@ -126,6 +126,10 @@ template<typename CharType> struct data_variant
   // cppcheck-suppress noExplicitConstructor
   constexpr data_variant(std::basic_string_view<CharType> s) : value{ s }, selected{ selected_type::string } {}
 
+  [[nodiscard]] constexpr bool is_boolean() const noexcept {
+    return selected == selected_type::boolean;
+  }
+
   [[nodiscard]] constexpr const bool *get_if_boolean() const noexcept
   {
     if (selected == selected_type::boolean) {
@@ -135,51 +139,80 @@ template<typename CharType> struct data_variant
     }
   }
 
+  [[nodiscard]] constexpr bool is_array() const noexcept {
+    return selected == selected_type::array;
+  }
+
   [[nodiscard]] constexpr const basic_array_t<CharType> *get_if_array() const noexcept
   {
-    if (selected == selected_type::array) {
+    if (is_array()) {
       return &value.array_;
     } else {
       return nullptr;
     }
   }
+
+  [[nodiscard]] constexpr bool is_object() const noexcept {
+    return selected == selected_type::object;
+  }
+
   [[nodiscard]] constexpr const basic_object_t<CharType> *get_if_object() const noexcept
   {
-    if (selected == selected_type::object) {
+    if (is_object()) {
       return &value.object_;
     } else {
       return nullptr;
     }
   }
+
+  [[nodiscard]] constexpr bool is_integer() const noexcept {
+    return selected == selected_type::integer;
+  }
+
   [[nodiscard]] constexpr const std::int64_t *get_if_integer() const noexcept
   {
-    if (selected == selected_type::integer) {
+    if (is_integer()) {
       return &value.int64_t_;
     } else {
       return nullptr;
     }
   }
+
+  [[nodiscard]] constexpr bool is_uinteger() const noexcept {
+    return selected == selected_type::uinteger;
+  }
+
   [[nodiscard]] constexpr const std::uint64_t *get_if_uinteger() const noexcept
   {
-    if (selected == selected_type::uinteger) {
+    if (is_uinteger()) {
       return &value.uint64_t_;
     } else {
       return nullptr;
     }
   }
 
+
+  [[nodiscard]] constexpr bool is_floating_point() const noexcept {
+    return selected == selected_type::floating_point;
+  }
+
+
   [[nodiscard]] constexpr const double *get_if_floating_point() const noexcept
   {
-    if (selected == selected_type::floating_point) {
+    if (is_floating_point()) {
       return &value.double_;
     } else {
       return nullptr;
     }
   }
 
+  [[nodiscard]] constexpr bool is_string() const noexcept {
+    return selected == selected_type::string;
+  }
+
   [[nodiscard]] constexpr const std::basic_string_view<CharType> *get_if_string() const noexcept
   {
-    if (selected == selected_type::string) {
+    if (is_string()) {
       return &value.string_view_;
     } else {
       return nullptr;
@@ -369,8 +402,8 @@ template<typename CharType> struct basic_json
 
   constexpr const auto &array_data() const
   {
-    if (const auto *result = data.get_if_array(); result != nullptr) {
-      return *result;
+    if (data.is_array()) {
+      return *data.get_if_array();
     } else {
       throw std::runtime_error("value is not an array type");
     }
@@ -378,8 +411,8 @@ template<typename CharType> struct basic_json
 
   constexpr const auto &object_data() const
   {
-    if (const auto *result = data.get_if_object(); result != nullptr) {
-      return *result;
+    if (data.is_object()) {
+      return *data.get_if_object();
     } else {
       throw std::runtime_error("value is not an object type");
     }
@@ -394,25 +427,25 @@ template<typename CharType> struct basic_json
     // but it's necessary for API compatibility with nlohmann::json
     if constexpr (std::is_same_v<Type,
                     std::uint64_t> || std::is_same_v<Type, std::int64_t> || std::is_same_v<Type, double>) {
-      if (const auto *uint_value = data.get_if_uinteger(); uint_value != nullptr) {
-        return Type(*uint_value);
-      } else if (const auto *value = data.get_if_integer(); value != nullptr) {
-        return Type(*value);
-      } else if (const auto *fpvalue = data.get_if_floating_point(); fpvalue != nullptr) {
-        return Type(*fpvalue);
+      if (data.is_uinteger()) {
+        return Type(*data.get_if_uinteger());
+      } else if (data.is_integer()) {
+        return Type(*data.get_if_integer());
+      } else if (data.is_floating_point()) {
+        return Type(*data.get_if_floating_point());
       } else {
         throw std::runtime_error("Unexpected type: number requested");// + ss.str() );
       }
     } else if constexpr (std::is_same_v<Type,
                            std::basic_string_view<CharType>> || std::is_same_v<Type, std::basic_string<CharType>>) {
-      if (const auto *value = data.get_if_string(); value != nullptr) {
-        return *value;
+      if (data.is_string()) {
+        return *data.get_if_string();
       } else {
         throw std::runtime_error("Unexpected type: string-like requested");
       }
     } else if constexpr (std::is_same_v<Type, bool>) {
-      if (const auto *value = data.get_if_boolean(); value != nullptr) {
-        return *value;
+      if (data.is_boolean()) {
+        return *data.get_if_boolean();
       } else {
         throw std::runtime_error("Unexpected type: bool requested");
       }
