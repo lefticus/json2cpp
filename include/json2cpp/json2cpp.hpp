@@ -126,9 +126,7 @@ template<typename CharType> struct data_variant
   // cppcheck-suppress noExplicitConstructor
   constexpr data_variant(std::basic_string_view<CharType> s) : value{ s }, selected{ selected_type::string } {}
 
-  [[nodiscard]] constexpr bool is_boolean() const noexcept {
-    return selected == selected_type::boolean;
-  }
+  [[nodiscard]] constexpr bool is_boolean() const noexcept { return selected == selected_type::boolean; }
 
   [[nodiscard]] constexpr const bool *get_if_boolean() const noexcept
   {
@@ -139,9 +137,7 @@ template<typename CharType> struct data_variant
     }
   }
 
-  [[nodiscard]] constexpr bool is_array() const noexcept {
-    return selected == selected_type::array;
-  }
+  [[nodiscard]] constexpr bool is_array() const noexcept { return selected == selected_type::array; }
 
   [[nodiscard]] constexpr const basic_array_t<CharType> *get_if_array() const noexcept
   {
@@ -152,9 +148,7 @@ template<typename CharType> struct data_variant
     }
   }
 
-  [[nodiscard]] constexpr bool is_object() const noexcept {
-    return selected == selected_type::object;
-  }
+  [[nodiscard]] constexpr bool is_object() const noexcept { return selected == selected_type::object; }
 
   [[nodiscard]] constexpr const basic_object_t<CharType> *get_if_object() const noexcept
   {
@@ -165,9 +159,7 @@ template<typename CharType> struct data_variant
     }
   }
 
-  [[nodiscard]] constexpr bool is_integer() const noexcept {
-    return selected == selected_type::integer;
-  }
+  [[nodiscard]] constexpr bool is_integer() const noexcept { return selected == selected_type::integer; }
 
   [[nodiscard]] constexpr const std::int64_t *get_if_integer() const noexcept
   {
@@ -178,9 +170,7 @@ template<typename CharType> struct data_variant
     }
   }
 
-  [[nodiscard]] constexpr bool is_uinteger() const noexcept {
-    return selected == selected_type::uinteger;
-  }
+  [[nodiscard]] constexpr bool is_uinteger() const noexcept { return selected == selected_type::uinteger; }
 
   [[nodiscard]] constexpr const std::uint64_t *get_if_uinteger() const noexcept
   {
@@ -192,9 +182,7 @@ template<typename CharType> struct data_variant
   }
 
 
-  [[nodiscard]] constexpr bool is_floating_point() const noexcept {
-    return selected == selected_type::floating_point;
-  }
+  [[nodiscard]] constexpr bool is_floating_point() const noexcept { return selected == selected_type::floating_point; }
 
 
   [[nodiscard]] constexpr const double *get_if_floating_point() const noexcept
@@ -206,9 +194,7 @@ template<typename CharType> struct data_variant
     }
   }
 
-  [[nodiscard]] constexpr bool is_string() const noexcept {
-    return selected == selected_type::string;
-  }
+  [[nodiscard]] constexpr bool is_string() const noexcept { return selected == selected_type::string; }
 
   [[nodiscard]] constexpr const std::basic_string_view<CharType> *get_if_string() const noexcept
   {
