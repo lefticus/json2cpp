@@ -10,9 +10,9 @@ target_link_libraries(catch_main PRIVATE project_options)
 
 set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/test_json")
 add_custom_command(
-  DEPENDS json2cpp
+  DEPENDS json2cpp-tool
   OUTPUT "${BASE_NAME}_impl.hpp" "${BASE_NAME}.hpp" "${BASE_NAME}.cpp"
-  COMMAND json2cpp "test_json" "${CMAKE_SOURCE_DIR}/examples/test.json" "${BASE_NAME}"
+  COMMAND json2cpp-tool "test_json" "${CMAKE_SOURCE_DIR}/examples/test.json" "${BASE_NAME}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(tests tests.cpp "${BASE_NAME}.cpp")
@@ -38,25 +38,25 @@ catch_discover_tests(
 
 set(SCHEMA_BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/allof_integers_and_numbers.schema")
 add_custom_command(
-  DEPENDS json2cpp
+  DEPENDS json2cpp-tool
   OUTPUT "${SCHEMA_BASE_NAME}_impl.hpp" "${SCHEMA_BASE_NAME}.hpp" "${SCHEMA_BASE_NAME}.cpp"
-  COMMAND json2cpp "allof_integers_and_numbers_schema"
+  COMMAND json2cpp-tool "allof_integers_and_numbers_schema"
           "${CMAKE_SOURCE_DIR}/examples/allof_integers_and_numbers.schema.json" "${SCHEMA_BASE_NAME}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(INT_BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/array_integers_10_20_30_40")
 add_custom_command(
-  DEPENDS json2cpp
+  DEPENDS json2cpp-tool
   OUTPUT "${INT_BASE_NAME}_impl.hpp" "${INT_BASE_NAME}.hpp" "${INT_BASE_NAME}.cpp"
-  COMMAND json2cpp "array_integers_10_20_30_40" "${CMAKE_SOURCE_DIR}/examples/array_integers_10_20_30_40.json"
+  COMMAND json2cpp-tool "array_integers_10_20_30_40" "${CMAKE_SOURCE_DIR}/examples/array_integers_10_20_30_40.json"
           "${INT_BASE_NAME}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(DOUBLE_BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/array_doubles_10_20_30_40")
 add_custom_command(
-  DEPENDS json2cpp
+  DEPENDS json2cpp-tool
   OUTPUT "${DOUBLE_BASE_NAME}_impl.hpp" "${DOUBLE_BASE_NAME}.hpp" "${DOUBLE_BASE_NAME}.cpp"
-  COMMAND json2cpp "array_doubles_10_20_30_40" "${CMAKE_SOURCE_DIR}/examples/array_doubles_10_20_30_40.json"
+  COMMAND json2cpp-tool "array_doubles_10_20_30_40" "${CMAKE_SOURCE_DIR}/examples/array_doubles_10_20_30_40.json"
           "${DOUBLE_BASE_NAME}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -136,9 +136,9 @@ catch_discover_tests(
 if(ENABLE_LARGE_TESTS)
   set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/schema")
   add_custom_command(
-    DEPENDS json2cpp
+    DEPENDS json2cpp-tool
     OUTPUT "${BASE_NAME}_impl.hpp" "${BASE_NAME}.hpp" "${BASE_NAME}.cpp"
-    COMMAND json2cpp "schema" "${CMAKE_SOURCE_DIR}/examples/Energy+.schema.epJSON" "${BASE_NAME}"
+    COMMAND json2cpp-tool "schema" "${CMAKE_SOURCE_DIR}/examples/Energy+.schema.epJSON" "${BASE_NAME}"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
   # Add a file containing a set of constexpr_schema tests

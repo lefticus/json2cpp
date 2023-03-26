@@ -55,9 +55,9 @@ int main(int argc, const char **argv)
       true,// show help if requested
       "json2cpp 0.0.1 Copyright 2022 Jason Turner");// version string
 
-    std::string document_name = args.at("<document_name>").asString();
-    std::filesystem::path filename = args.at("<file_name>").asString();
-    std::filesystem::path output_filename = args.at("<output_base_name>").asString();
+    const std::string document_name = args.at("<document_name>").asString();
+    const std::filesystem::path filename = args.at("<file_name>").asString();
+    const std::filesystem::path output_filename = args.at("<output_base_name>").asString();
 
     compile_to(document_name, filename, output_filename);
 

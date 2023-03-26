@@ -13,6 +13,7 @@ cmake-build-*/
 !.vscode/extensions.json
 *.swp
 *~
+CMakeUserPresets.json
 
 # OS Generated Files
 .DS_Store

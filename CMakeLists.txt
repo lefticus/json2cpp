@@ -59,6 +59,8 @@ if(GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
       MinSizeRel)
 endif()
 
+set(ENABLE_CONAN_DEFAULT OFF) # conan-cmake doesn't work with conan 2
+
 include(${_project_options_SOURCE_DIR}/src/DynamicProjectOptions.cmake)
 
 # defaulted_project_options sets recommended defaults and provides user and developer
