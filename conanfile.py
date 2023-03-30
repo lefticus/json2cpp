@@ -26,11 +26,11 @@ class json2cppRecipe(ConanFile):
         cmake_layout(self)
 
     def requirements(self):
-        self.requires("valijson/1.0", transitive_headers=True)
-        self.requires("spdlog/1.11.0")
-        self.requires("nlohmann_json/3.11.2")
-        self.requires("fmt/9.1.0")
-        self.requires("docopt.cpp/0.6.3")
+        self.requires("valijson/1.0", transitive_headers=True, visible=True)
+        self.requires("spdlog/1.11.0", visible=False)
+        self.requires("nlohmann_json/3.11.2", visible=False)
+        self.requires("fmt/9.1.0", visible=False)
+        self.requires("docopt.cpp/0.6.3", visible=False)
 
     def build_requirements(self):
         self.test_requires("catch2/2.13.10")
@@ -66,6 +66,6 @@ class json2cppRecipe(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["json2cpp"]
 
-        # the projects generates its own json2cppConfig.cmake
+        # the project generates its own json2cppConfig.cmake
         self.cpp_info.set_property("cmake_find_mode", "none")
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake", "json2cpp"))
