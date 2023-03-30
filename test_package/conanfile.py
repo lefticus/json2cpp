@@ -9,14 +9,13 @@ class json2cppTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
 
     def requirements(self):
-        self.requires("valijson/1.0")
-        self.requires(self.tested_reference_str, headers=True, run=True, build=True)
+        self.requires(self.tested_reference_str)
+
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
 
     def generate(self):
         deps = CMakeDeps(self)
-        # generate the config files for the tool require
-        # tried, but doesn't work
-        # deps.build_context_activated = ["json2cpp"]
         deps.generate()
         tc = CMakeToolchain(self)
         tc.generate()
