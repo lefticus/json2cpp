@@ -1,5 +1,5 @@
 #include "test_json.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("Can read object size")
 {

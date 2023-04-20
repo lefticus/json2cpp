@@ -1,5 +1,5 @@
 #include "schema_impl.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <string_view>
 
 TEST_CASE("Basic test of very large energyplus JSON schema")

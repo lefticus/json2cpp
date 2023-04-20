@@ -28,39 +28,27 @@ SOFTWARE.
 #include <iostream>
 
 #include "json2cpp.hpp"
-#include <docopt/docopt.h>
+#include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
-
-
-static constexpr auto USAGE =
-  R"(json2cpp
-
- Copyright 2022 Jason Turner
-
-    Usage:
-          json2cpp <document_name> <file_name> <output_base_name>
-          json2cpp (-h | --help)
-          json2cpp --version
- Options:
-          -h --help     Show this screen.
-          --version     Show version.
-)";
 
 
 int main(int argc, const char **argv)
 {
   try {
-    std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
-      { std::next(argv), std::next(argv, argc) },
-      true,// show help if requested
-      "json2cpp 0.0.1 Copyright 2022 Jason Turner");// version string
+    CLI::App app("json2cpp version 0.0.1");
 
-    std::string document_name = args.at("<document_name>").asString();
-    std::filesystem::path filename = args.at("<file_name>").asString();
-    std::filesystem::path output_filename = args.at("<output_base_name>").asString();
+    std::string document_name;
+    std::filesystem::path input_file_name;
+    std::filesystem::path output_base_name;
 
-    compile_to(document_name, filename, output_filename);
+    bool show_version = false;
+    app.add_flag("--version", show_version, "Show version information");
+    app.add_option("<document_name>", document_name);
+    app.add_option("<input_file_name>", input_file_name);
+    app.add_option("<output_base_name>", output_base_name);
+    CLI11_PARSE(app, argc, argv);
 
+    compile_to(document_name, input_file_name, output_base_name);
   } catch (const std::exception &e) {
     spdlog::error("Unhandled exception in main: {}", e.what());
   }

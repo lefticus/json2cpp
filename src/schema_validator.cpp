@@ -25,16 +25,16 @@ SOFTWARE.
 #include <filesystem>
 #include <fstream>
 #ifdef __GNUC__
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 #include <functional>
 #ifdef __GNUC__
-  #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 #include <iostream>
 
-#include <docopt/docopt.h>
+#include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 
 #include <json2cpp/json2cpp_adapter.hpp>
@@ -44,23 +44,6 @@ SOFTWARE.
 #include <valijson/validator.hpp>
 
 #include "schema.hpp"
-
-static constexpr auto USAGE =
-  R"(schema_validator
-
- Copyright 2022 Jason Turner
-
-    Usage:
-          schema_validator <schema_file> <document_to_validate> [--internal]
-          schema_validator (-h | --help)
-          schema_validator <schema_file> --walk [--internal]
-          schema_validator --version
- Options:
-          -h --help     Show this screen.
-          --version     Show version.
-          --internal    Use internal schema
-          --walk        Just walk the schema and count objects (perf test)
-)";
 
 
 bool validate(const std::filesystem::path &schema_file_name, const std::filesystem::path &file_to_validate)
@@ -192,16 +175,27 @@ template<typename JSON> void walk(const JSON &objects)
 int main(int argc, const char **argv)
 {
   try {
-    std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
-      { std::next(argv), std::next(argv, argc) },
-      true,// show help if requested
-      "schema_validator 0.0.1 Copyright 2022 Jason Turner");// version string
+    CLI::App app("schema_validator version 0.0.1");
 
-    if (args.at("--walk").asBool()) {
-      if (args.at("--internal").asBool()) {
+    std::string document_name;
+    std::filesystem::path schema_file_name;
+    std::filesystem::path document_to_validate;
+
+    bool do_walk = false;
+    bool internal = false;
+    bool show_version = false;
+    app.add_option("<schema_file>", schema_file_name);
+    auto *doc = app.add_option("<document_to_validate>", document_to_validate);
+    app.add_flag("--version", show_version, "Show version information");
+    app.add_flag("--walk", do_walk, "Just walk the schema and count objects (perf test)")->excludes(doc);
+    app.add_flag("--internal", internal, "Use internal schema");
+
+    CLI11_PARSE(app, argc, argv);
+
+    if (do_walk) {
+      if (internal) {
         walk(compiled_json::energyplus_schema::get());
       } else {
-        std::filesystem::path schema_file_name = args.at("<schema_file>").asString();
         spdlog::info("Creating nlohmann::json object");
         nlohmann::json schema;
         spdlog::info("Opening json file");
@@ -213,15 +207,10 @@ int main(int argc, const char **argv)
       return EXIT_SUCCESS;
     }
 
-
-    std::filesystem::path schema = args.at("<schema_file>").asString();
-    std::filesystem::path doc = args.at("<document_to_validate>").asString();
-
-
-    if (args.at("--internal").asBool()) {
-      validate_internal(doc);
+    if (internal) {
+      validate_internal(document_to_validate);
     } else {
-      validate(schema, doc);
+      validate(schema_file_name, document_to_validate);
     }
 
   } catch (const std::exception &e) {

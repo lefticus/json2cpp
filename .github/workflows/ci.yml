@@ -6,13 +6,6 @@ on:
     branches:
       - main
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  # Conan cache environment variables
-  CONAN_SYSREQUIRES_MODE: enabled
-  CONAN_USER_HOME: "${{ github.workspace }}/conan-cache"
-  CONAN_USER_HOME_SHORT: "${{ github.workspace }}/conan-cache/short"
-
 jobs:
   Test:
     runs-on: ${{ matrix.os }}
@@ -40,7 +33,7 @@ jobs:
         build_type:
           - Release
           - Debug
-        developer_mode:
+        package_maintainer_mode:
           - ON
           - OFF
         large_tests:
@@ -54,11 +47,11 @@ jobs:
           - os: macos-10.15
             compiler: gcc-8
             build_type: Debug
-            developer_mode: ON
+            package_maintainer_mode: OFF
           - os: macos-10.15
             compiler: llvm
             build_type: Release
-            developer_mode: ON
+            package_maintainer_mode: OFF
 
 
 
@@ -70,7 +63,7 @@ jobs:
             gcov: "gcov-8"
 
           # setup preferred package generators
-          - developer_mode: OFF
+          - package_maintainer_mode: ON
             build_type: Release
             package_generator: TBZ2
 
@@ -81,28 +74,28 @@ jobs:
             gcov: gcov
             generator: "Unix Makefiles"
             build_type: Debug
-            developer_mode: On
+            package_maintainer_mode: OFF
 
           - os: windows-2019
             compiler: msvc
             generator: "Visual Studio 16 2019"
             build_type: Debug
-            developer_mode: On
+            package_maintainer_mode: OFF
           - os: windows-2019
             compiler: msvc
             generator: "Visual Studio 16 2019"
             build_type: Release
-            developer_mode: On
+            package_maintainer_mode: OFF
           - os: windows-2019
             compiler: msvc
             generator: "Visual Studio 16 2019"
             build_type: Debug
-            developer_mode: Off
+            package_maintainer_mode: ON
           - os: windows-2019
             compiler: msvc
             generator: "Visual Studio 16 2019"
             build_type: Release
-            developer_mode: Off
+            package_maintainer_mode: ON
             package_generator: ZIP
 
 
@@ -124,11 +117,11 @@ jobs:
             ${{ env.XDG_CACHE_HOME }}/vcpkg/archives
             ${{ env.LOCALAPPDATA }}\vcpkg\archives
             ${{ env.APPDATA }}\vcpkg\archives
-          key: ${{ runner.os }}-${{ matrix.compiler }}-${{matrix.build_type}}-${{matrix.generator}}-${{matrix.developer_mode}}-${{ hashFiles('**/CMakeLists.txt') }}-${{ hashFiles('./conanfile.txt')}}-${{ hashFiles('./vcpkg.json')}}
+          key: ${{ runner.os }}-${{ matrix.compiler }}-${{matrix.build_type}}-${{matrix.generator}}-${{matrix.package_maintainer_mode}}-${{ hashFiles('**/CMakeLists.txt') }}-${{ hashFiles('./vcpkg.json')}}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.compiler }}-${{matrix.build_type}}-${{matrix.generator}}-${{matrix.developer_mode}}
+            ${{ runner.os }}-${{ matrix.compiler }}-${{matrix.build_type}}-${{matrix.generator}}-${{matrix.package_maintainer_mode}}
 
-      - run: pip3 install conan cmake ninja
+      - run: pip3 install cmake ninja
 
       - name: Setup Cpp
         uses: aminya/setup-cpp@v1
@@ -138,7 +131,6 @@ jobs:
 
           cmake: false
           ninja: false
-          conan: false
           vcpkg: false
           ccache: true
           clangtidy: true
@@ -150,7 +142,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -DENABLE_DEVELOPER_MODE:BOOL=${{matrix.developer_mode}} -DENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -DOPT_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }}
+          cmake -S . -B ./build -G "${{matrix.generator}}" -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -Djson2cpp_ENABLE_PACKAGING_MAINTAINER_MODE:BOOL=${{matrix.package_maintainer_mode}} -Djson2cpp_ENABLE_LARGE_TESTS:BOOL=${{matrix.large_tests}} -Djson2cpp_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
