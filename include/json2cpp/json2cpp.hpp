@@ -88,6 +88,7 @@ template<typename CharType> struct data_variant
     std::uint64_t uint64_t_;
     double double_;
     std::basic_string_view<CharType> string_view_;
+    std::nullptr_t null_;
 
     constexpr explicit value_t() : empty_{} {}
     constexpr explicit value_t(monostate) : value_t() {}
@@ -99,9 +100,10 @@ template<typename CharType> struct data_variant
     constexpr explicit value_t(std::uint64_t i) : uint64_t_{ i } {}
     constexpr explicit value_t(double d) : double_{ d } {}
     constexpr explicit value_t(std::basic_string_view<CharType> s) : string_view_{ s } {}
+    constexpr explicit value_t(std::nullptr_t) : null_{} {}
   };
 
-  enum struct selected_type { empty, boolean, binary, array, object, integer, uinteger, floating_point, string };
+  enum struct selected_type { empty, boolean, binary, array, object, integer, uinteger, floating_point, string, nullish };
 
   value_t value{ monostate{} };
   selected_type selected{ selected_type::empty };
@@ -125,6 +127,8 @@ template<typename CharType> struct data_variant
   constexpr data_variant(double d) : value{ d }, selected{ selected_type::floating_point } {}
   // cppcheck-suppress noExplicitConstructor
   constexpr data_variant(std::basic_string_view<CharType> s) : value{ s }, selected{ selected_type::string } {}
+  // cppcheck-suppress noExplicitConstructor
+  constexpr data_variant(std::nullptr_t) : value{ nullptr }, selected{ selected_type::nullish } {}
 
   [[nodiscard]] constexpr bool is_boolean() const noexcept { return selected == selected_type::boolean; }
 
@@ -204,6 +208,8 @@ template<typename CharType> struct data_variant
       return nullptr;
     }
   }
+
+  [[nodiscard]] constexpr bool is_null() const noexcept { return selected == selected_type::nullish; }
 };
 
 template<typename CharType> struct basic_json
@@ -435,6 +441,12 @@ template<typename CharType> struct basic_json
       } else {
         throw std::runtime_error("Unexpected type: bool requested");
       }
+    } else if constexpr (std::is_same_v<Type, std::nullptr_t>) {
+      if (data.is_null()) {
+        return nullptr;
+      } else {
+        throw std::runtime_error("Unexpected type: null requested");
+      }
     } else {
       throw std::runtime_error("Unexpected type for get()");
     }
@@ -447,7 +459,7 @@ template<typename CharType> struct basic_json
   [[nodiscard]] constexpr bool is_structured() const noexcept { return is_object() || is_array(); }
   [[nodiscard]] constexpr bool is_number() const noexcept { return is_number_integer() || is_number_float(); }
   [[nodiscard]] constexpr bool is_number_integer() const noexcept { return is_number_signed() || is_number_unsigned(); }
-  [[nodiscard]] constexpr bool is_null() const noexcept { return data.selected == data_t::selected_type::empty; }
+  [[nodiscard]] constexpr bool is_null() const noexcept { return data.selected == data_t::selected_type::nullish; }
   [[nodiscard]] constexpr bool is_binary() const noexcept { return data.selected == data_t::selected_type::binary; }
 
   [[nodiscard]] constexpr bool is_number_signed() const noexcept

@@ -1,7 +1,14 @@
 #include "allof_integers_and_numbers.schema.hpp"
 #include "array_doubles_10_20_30_40.hpp"
 #include "array_integers_10_20_30_40.hpp"
+#ifdef __GNUC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <catch2/catch.hpp>
+#ifdef __GNUC__
+  #pragma GCC diagnostic pop
+#endif
 #include <json2cpp/json2cpp_adapter.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>

@@ -24,7 +24,14 @@ SOFTWARE.
 
 #include <filesystem>
 #include <fstream>
+#ifdef __GNUC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <functional>
+#ifdef __GNUC__
+  #pragma GCC diagnostic pop
+#endif
 #include <iostream>
 
 #include <docopt/docopt.h>
@@ -140,6 +147,7 @@ template<typename JSON>
 void walk_internal(std::int64_t &int_sum,
   double &double_sum,
   std::size_t &string_sizes,
+  int &null_count,
   int &array_count,
   int &object_count,
   const JSON &obj)
@@ -150,15 +158,17 @@ void walk_internal(std::int64_t &int_sum,
     double_sum += obj.template get<double>();
   } else if (obj.is_string()) {
     string_sizes += obj.template get<std::string_view>().size();
+  } else if (obj.is_null()) {
+    ++null_count;
   } else if (obj.is_array()) {
     ++array_count;
     for (const auto &child : obj) {
-      walk_internal(int_sum, double_sum, string_sizes, array_count, object_count, child);
+      walk_internal(int_sum, double_sum, string_sizes, null_count, array_count, object_count, child);
     }
   } else if (obj.is_object()) {
     ++object_count;
     for (const auto &child : obj) {
-      walk_internal(int_sum, double_sum, string_sizes, array_count, object_count, child);
+      walk_internal(int_sum, double_sum, string_sizes, null_count, array_count, object_count, child);
     }
   }
 }
@@ -168,14 +178,15 @@ template<typename JSON> void walk(const JSON &objects)
   std::int64_t int_sum{};
   double double_sum{};
   std::size_t string_sizes{};
+  int null_count{};
   int array_count{};
   int object_count{};
 
   spdlog::info("Starting tree walk");
 
-  walk_internal(int_sum, double_sum, string_sizes, array_count, object_count, objects);
+  walk_internal(int_sum, double_sum, string_sizes, null_count, array_count, object_count, objects);
 
-  spdlog::info("{} {} {} {} {}", int_sum, double_sum, string_sizes, array_count, object_count);
+  spdlog::info("{} {} {} {} {} {}", int_sum, double_sum, string_sizes, null_count, array_count, object_count);
 }
 
 int main(int argc, const char **argv)
