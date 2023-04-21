@@ -46,6 +46,10 @@ jobs:
           - OFF
         build_shared:
           - OFF
+        enable_clang_tidy:
+          - OFF
+        enable_cpp_check:
+          - OFF
 
         exclude:
           # mingw is determined by this author to be too buggy to support
@@ -65,6 +69,10 @@ jobs:
 
           - os: macos-10.15
             enable_ipo: Off
+
+          - os: ubuntu-20.04
+            enable_clang_tidy: On
+            enable_cppcheck: On
 
           # Set up preferred package generators, for given build configurations
           - build_type: Release
@@ -155,7 +163,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -Djson2cpp_ENABLE_IPO=${{matrix.enable_ipo }} -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -Djson2cpp_PACKAGING_MAINTAINER_MODE:BOOL=${{matrix.package_maintainer_mode}} -Djson2cpp_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }}
+          cmake -S . -B ./build -G "${{matrix.generator}}" -Djson2cpp_ENABLE_CLANG_TIDY:BOOL=${{ matrix.enable_clang_tidy }} -Djson2cpp_ENABLE_CPPCHECK:BOOL=${{ matrix.enable_cppcheck }} -Djson2cpp_ENABLE_IPO=${{matrix.enable_ipo }} -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -Djson2cpp_PACKAGING_MAINTAINER_MODE:BOOL=${{matrix.package_maintainer_mode}} -Djson2cpp_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }}
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"

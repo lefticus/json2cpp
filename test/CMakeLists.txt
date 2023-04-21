@@ -84,8 +84,11 @@ target_include_directories(valijson_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(
   valijson_tests
   PRIVATE json2cpp_warnings
-          json2cpp_options
-          Catch2::Catch2WithMain
+          json2cpp_options)
+
+target_link_system_libraries(
+  valijson_tests
+  PRIVATE Catch2::Catch2WithMain
           ValiJSON::valijson)
 
 # automatically discover tests that are defined in catch based test files you can modify the unittests. Set TEST_PREFIX
