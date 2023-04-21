@@ -1,13 +1,13 @@
 #include "allof_integers_and_numbers.schema.hpp"
 #include "array_doubles_10_20_30_40.hpp"
 #include "array_integers_10_20_30_40.hpp"
-#ifdef __GNUC__
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-#include <catch2/catch.hpp>
-#ifdef __GNUC__
-  #pragma GCC diagnostic pop
+#include <catch2/catch_test_macros.hpp>
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
 #endif
 #include <json2cpp/json2cpp_adapter.hpp>
 #include <valijson/schema.hpp>
@@ -26,7 +26,7 @@ TEST_CASE("Can load a valijson schema")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
+  const json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 }
 
@@ -42,11 +42,11 @@ TEST_CASE("Validation fails where expected")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
+  const json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
-  json2cppJsonAdapter myTargetAdapter(compiled_json::array_doubles_10_20_30_40::get());
+  const json2cppJsonAdapter myTargetAdapter(compiled_json::array_doubles_10_20_30_40::get());
 
   REQUIRE_FALSE(validator.validate(mySchema, myTargetAdapter, nullptr));
 }
@@ -63,11 +63,11 @@ TEST_CASE("Can validate a document")
   // Parse JSON schema content using valijson
   Schema mySchema;
   SchemaParser parser;
-  json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
+  const json2cppJsonAdapter mySchemaAdapter(compiled_json::allof_integers_and_numbers_schema::get());
   CHECK_NOTHROW(parser.populateSchema(mySchemaAdapter, mySchema));
 
   Validator validator;
-  json2cppJsonAdapter myTargetAdapter(compiled_json::array_integers_10_20_30_40::get());
+  const json2cppJsonAdapter myTargetAdapter(compiled_json::array_integers_10_20_30_40::get());
 
   REQUIRE(validator.validate(mySchema, myTargetAdapter, nullptr));
 }
