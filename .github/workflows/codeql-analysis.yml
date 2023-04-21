@@ -60,7 +60,7 @@ jobs:
 
 
     - name: Setup Cpp
-      uses: aminya/setup-cpp@v1
+      uses: aminya/setup-cpp@v2
       with:
         compiler: ${{ matrix.compiler }}
         vcvarsall: ${{ contains(matrix.os, 'windows' )}}
@@ -99,4 +99,4 @@ jobs:
         cmake --build ./build --config ${{matrix.build_type}}
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v2
