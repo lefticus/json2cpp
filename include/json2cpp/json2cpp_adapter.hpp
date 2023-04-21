@@ -53,10 +53,10 @@ SOFTWARE.
 #include <string>
 
 #include <utility>
+#include <valijson/exceptions.hpp>
 #include <valijson/internal/adapter.hpp>
 #include <valijson/internal/basic_adapter.hpp>
 #include <valijson/internal/frozen_value.hpp>
-#include <valijson/exceptions.hpp>
 
 namespace valijson {
 namespace adapters {

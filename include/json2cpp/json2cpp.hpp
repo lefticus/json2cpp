@@ -103,7 +103,18 @@ template<typename CharType> struct data_variant
     constexpr explicit value_t(std::nullptr_t) : null_{} {}
   };
 
-  enum struct selected_type { empty, boolean, binary, array, object, integer, uinteger, floating_point, string, nullish };
+  enum struct selected_type {
+    empty,
+    boolean,
+    binary,
+    array,
+    object,
+    integer,
+    uinteger,
+    floating_point,
+    string,
+    nullish
+  };
 
   value_t value{ monostate{} };
   selected_type selected{ selected_type::empty };

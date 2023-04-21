@@ -2,12 +2,12 @@
 #include "array_doubles_10_20_30_40.hpp"
 #include "array_integers_10_20_30_40.hpp"
 #if defined(__GNUC__) && !defined(__clang__)
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 #include <catch2/catch_test_macros.hpp>
 #if defined(__GNUC__) && !defined(__clang__)
-  #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 #include <json2cpp/json2cpp_adapter.hpp>
 #include <valijson/schema.hpp>
