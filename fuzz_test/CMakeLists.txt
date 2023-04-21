@@ -7,7 +7,7 @@ add_executable(fuzz_tester fuzz_tester.cpp)
 target_link_libraries(
   fuzz_tester
   PRIVATE json2cpp::json2cpp_options
-          json2cpp::json2cpp__warnings
+          json2cpp::json2cpp_warnings
           fmt::fmt
           -coverage
           -fsanitize=fuzzer,undefined,address)
