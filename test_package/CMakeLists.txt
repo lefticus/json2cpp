@@ -10,5 +10,5 @@ add_custom_command(
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(example src/example.cpp "${COMPILED_JSON}.cpp")
-target_link_libraries(example PRIVATE json2cpp::json2cpp)
+target_link_libraries(example PRIVATE json2cpp::libjson2cpp)
 target_include_directories(example PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")

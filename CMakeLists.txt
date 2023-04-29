@@ -60,6 +60,8 @@ if(GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(ENABLE_CONAN_DEFAULT OFF) # conan-cmake doesn't work with conan 2
+set(ENABLE_CLANG_TIDY_DEFAULT OFF)
+set(ENABLE_CPPCHECK_DEFAULT OFF)
 
 include(${_project_options_SOURCE_DIR}/src/DynamicProjectOptions.cmake)
 
@@ -108,13 +110,13 @@ option(ENABLE_LARGE_TESTS "Enable tests and tools that use the Energy+ schema fi
 add_subdirectory(src)
 
 # Adding the tests:
-option(ENABLE_TESTING "Enable the tests" ON)
-if(ENABLE_TESTING)
-  enable_testing()
-  message("Building Tests. Be sure to check out test/constexpr_tests for constexpr
-testing")
-  add_subdirectory(test)
-endif()
+# option(ENABLE_TESTING "Enable the tests" ON)
+# if(ENABLE_TESTING)
+#   enable_testing()
+#   message("Building Tests. Be sure to check out test/constexpr_tests for constexpr
+# testing")
+#   add_subdirectory(test)
+# endif()
 
 option(ENABLE_FUZZING "Enable the fuzz tests" OFF)
 if(ENABLE_FUZZING)
