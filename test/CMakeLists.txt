@@ -17,7 +17,14 @@ endif()
 
 # ---- Dependencies ----
 
-include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
+if(DEFINED CONAN_CXX_FLAGS)
+  find_package(Catch2 CONFIG REQUIRED)
+  find_package(ValiJSON CONFIG REQUIRED)
+  include(Catch)
+else()
+  include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
+endif()
+
 
 
 set(BASE_NAME "${CMAKE_CURRENT_BINARY_DIR}/test_json")

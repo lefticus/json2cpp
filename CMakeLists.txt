@@ -29,8 +29,11 @@ include(ProjectOptions.cmake)
 json2cpp_setup_options()
 
 json2cpp_global_options()
-include(Dependencies.cmake)
-json2cpp_setup_dependencies()
+
+if(NOT DEFINED CONAN_CXX_FLAGS)
+  include(Dependencies.cmake)
+  json2cpp_setup_dependencies()
+endif()
 
 json2cpp_local_options()
 
@@ -48,9 +51,24 @@ string(
 
 target_compile_features(json2cpp_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
 
+if(DEFINED CONAN_CXX_FLAGS)
+  find_package(ValiJSON CONFIG)
+endif()
+
 add_library(json2cpp_headers INTERFACE)
-target_include_directories(json2cpp_headers INTERFACE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(json2cpp_headers INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(json2cpp_headers INTERFACE ValiJSON::valijson)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/json2cpp" TYPE INCLUDE)
 add_library(json2cpp::json2cpp_headers ALIAS json2cpp_headers)
+install(TARGETS json2cpp_headers EXPORT json2cppTargets)
+export(EXPORT json2cppTargets NAMESPACE json2cpp::)
+install(
+  EXPORT json2cppTargets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/json2cpp
+  NAMESPACE json2cpp::
+)
 
 add_library(json2cpp::json2cpp_options ALIAS json2cpp_options)
 add_library(json2cpp::json2cpp_warnings ALIAS json2cpp_warnings)
@@ -93,6 +111,10 @@ endif()
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT json2cpp)
 
 if(CMAKE_SKIP_INSTALL_RULES)
+  return()
+endif()
+
+if(DEFINED CONAN_CXX_FLAGS)
   return()
 endif()
 
