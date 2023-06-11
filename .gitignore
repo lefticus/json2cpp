@@ -2,6 +2,7 @@
 build/
 out/
 cmake-build-*/
+CMakeUserPresets.json
 
 # IDE files
 .vs/

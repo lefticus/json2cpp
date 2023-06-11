@@ -3,6 +3,14 @@ add_executable(json2cpp main.cpp json2cpp.cpp)
 add_executable(json2cpp::json2cpp ALIAS json2cpp)
 target_link_libraries(json2cpp PRIVATE json2cpp_options json2cpp_warnings)
 
+if(DEFINED CONAN_CXX_FLAGS)
+  find_package(fmt CONFIG)
+  find_package(spdlog CONFIG)
+  find_package(CLI11 CONFIG)
+  find_package(nlohmann_json CONFIG)
+  find_package(ValiJSON CONFIG)
+endif()
+
 target_link_system_libraries(
   json2cpp
   PRIVATE
