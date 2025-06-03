@@ -23,9 +23,7 @@ SOFTWARE.
 */
 
 #include <filesystem>
-#include <fstream>
-#include <functional>
-#include <iostream>
+#include <string>
 
 #include "json2cpp.hpp"
 #include <CLI/CLI.hpp>
@@ -39,13 +37,18 @@ int main(int argc, const char **argv)
 
     std::string document_name;
     std::filesystem::path input_file_name;
-    std::filesystem::path output_base_name;
+    std::filesystem::path output_base_name = "out";
 
     bool show_version = false;
     app.add_flag("--version", show_version, "Show version information");
-    app.add_option("<document_name>", document_name);
-    app.add_option("<input_file_name>", input_file_name);
-    app.add_option("<output_base_name>", output_base_name);
+    app.add_option("<document_name>",
+      document_name,
+      "The name of the document used in the generated C++ namespace and include guards");
+    app.add_option("<input_file_name>", input_file_name, "The input JSON file to compile");
+    app.add_option("<output_base_name>",
+      output_base_name,
+      "The base path for the output filesThe base path for the output files. It will generate <output_base_name>.cpp "
+      "and <output_base_name>.hpp");
     CLI11_PARSE(app, argc, argv);
 
     compile_to(document_name, input_file_name, output_base_name);

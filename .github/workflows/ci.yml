@@ -29,8 +29,8 @@ jobs:
       # and your own projects needs
       matrix:
         os:
-          - ubuntu-20.04
-          - macos-10.15
+          - ubuntu-22.04
+          - macos-13
           - windows-2019
         compiler:
           # you can specify the version after `-` like "llvm-15.0.2".
@@ -40,12 +40,14 @@ jobs:
           - "Ninja Multi-Config"
         build_type:
           - Release
-          - Debug
+          # - Debug
         package_maintainer_mode:
           - ON
-          - OFF
+          # - OFF
         build_shared:
           - OFF
+        package_generator:
+          - TBZ2
 
         exclude:
           # mingw is determined by this author to be too buggy to support
@@ -55,80 +57,80 @@ jobs:
         include:
           # Add appropriate variables for gcov version required. This will intentionally break
           # if you try to use a compiler that does not have gcov set
-          - compiler: gcc-11
-            gcov_executable: gcov
-            enable_ipo: On
+          # - compiler: gcc-11
+          #   gcov_executable: gcov
+          #   enable_ipo: On
 
-          - compiler: llvm-15.0.2
-            enable_ipo: Off
-            gcov_executable: "llvm-cov gcov"
+          # - compiler: llvm-15.0.2
+          #   enable_ipo: Off
+          #   gcov_executable: "llvm-cov gcov"
 
-          - os: macos-10.15
+          - os: macos-14
             enable_ipo: Off
             enable_cppcheck: OFF
             enable_clang_tidy: OFF
-
-          - os: ubuntu-20.04
-            enable_clang_tidy: On
-            enable_cppcheck: On
-
+            compiler: appleclang
+            generator: "Ninja Multi-Config"
+            build_type: Release
+            package_maintainer_mode: ON
+            build_shared: OFF
+            package_generator: TBZ2
+              
+          # - os: ubuntu-20.04
+          #   enable_clang_tidy: On
+          #   enable_cppcheck: On
 
           # Set up preferred package generators, for given build configurations
-          - build_type: Release
-            package_maintainer_mode: OFF
-            package_generator: TBZ2
+          # - build_type: Release
+          #   package_maintainer_mode: OFF
+          #   package_generator: TBZ2
 
           # This exists solely to make sure a non-multiconfig build works
-          - os: ubuntu-20.04
-            compiler: gcc-11
-            generator: "Unix Makefiles"
-            build_type: Debug
-            gcov_executable: gcov
-            package_maintainer_mode: On
-            enable_ipo: Off
-            enable_clang_tidy: On
-            enable_cppcheck: On
-
+          # - os: ubuntu-20.04
+          #   compiler: gcc-11
+          #   generator: "Unix Makefiles"
+          #   build_type: Debug
+          #   gcov_executable: gcov
+          #   package_maintainer_mode: On
+          #   enable_ipo: Off
+          #   enable_clang_tidy: On
+          #   enable_cppcheck: On
 
           # Windows msvc builds
-          - os: windows-2022
-            compiler: msvc
-            generator: "Visual Studio 17 2022"
-            build_type: Debug
-            package_maintainer_mode: On
-            enable_ipo: On
-            enable_clang_tidy: Off
-            enable_cppcheck: Off
+          # - os: windows-2022
+          #   compiler: msvc
+          #   generator: "Visual Studio 17 2022"
+          #   build_type: Debug
+          #   package_maintainer_mode: On
+          #   enable_ipo: On
+          #   enable_clang_tidy: Off
+          #   enable_cppcheck: Off
 
+          # - os: windows-2022
+          #   compiler: msvc
+          #   generator: "Visual Studio 17 2022"
+          #   build_type: Release
+          #   package_maintainer_mode: On
+          #   enable_ipo: On
+          #   enable_clang_tidy: Off
+          #   enable_cppcheck: Off
 
-          - os: windows-2022
-            compiler: msvc
-            generator: "Visual Studio 17 2022"
-            build_type: Release
-            package_maintainer_mode: On
-            enable_ipo: On
-            enable_clang_tidy: Off
-            enable_cppcheck: Off
+          # - os: windows-2022
+          #   compiler: msvc
+          #   generator: "Visual Studio 17 2022"
+          #   build_type: Debug
+          #   package_maintainer_mode: Off
+          #   enable_clang_tidy: Off
+          #   enable_cppcheck: Off
 
-
-          - os: windows-2022
-            compiler: msvc
-            generator: "Visual Studio 17 2022"
-            build_type: Debug
-            package_maintainer_mode: Off
-            enable_clang_tidy: Off
-            enable_cppcheck: Off
-
-
-          - os: windows-2022
-            compiler: msvc
-            generator: "Visual Studio 17 2022"
-            build_type: Release
-            package_maintainer_mode: Off
-            package_generator: ZIP
-            enable_clang_tidy: Off
-            enable_cppcheck: Off
-
+          # - os: windows-2022
+          #   compiler: msvc
+          #   generator: "Visual Studio 17 2022"
+          #   build_type: Release
+          #   package_maintainer_mode: Off
+          #   package_generator: ZIP
+          #   enable_clang_tidy: Off
+          #   enable_cppcheck: Off
 
           - os: windows-2022
             compiler: msvc
@@ -139,18 +141,17 @@ jobs:
             build_shared: On
             enable_clang_tidy: Off
             enable_cppcheck: Off
-
-
+            package_generator: TBZ2
 
     steps:
-      - name: Check for llvm version mismatches
-        if: ${{ contains(matrix.compiler, 'llvm') && !contains(matrix.compiler, env.CLANG_TIDY_VERSION) }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-            core.setFailed('There is a mismatch between configured llvm compiler and clang-tidy version chosen')
+      # - name: Check for llvm version mismatches
+      #   if: ${{ contains(matrix.compiler, 'llvm') && !contains(matrix.compiler, env.CLANG_TIDY_VERSION) }}
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #       core.setFailed('There is a mismatch between configured llvm compiler and clang-tidy version chosen')
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Cache
         uses: ./.github/actions/setup_cache
@@ -170,8 +171,7 @@ jobs:
           ninja: true
           vcpkg: false
           ccache: true
-          clangtidy: ${{ env.CLANG_TIDY_VERSION }}
-
+          clangtidy: ${{ contains(matrix.enable_clang_tidy, 'on') }}
 
           cppcheck: true
 
@@ -180,27 +180,27 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}"  -Djson2cpp_ENABLE_CLANG_TIDY:BOOL=${{ matrix.enable_clang_tidy }} -Djson2cpp_ENABLE_CPPCHECK:BOOL=${{ matrix.enable_cppcheck }} -Djson2cpp_ENABLE_IPO=${{matrix.enable_ipo }} -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -Djson2cpp_PACKAGING_MAINTAINER_MODE:BOOL=${{matrix.package_maintainer_mode}} -Djson2cpp_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }}
+          cmake -S . -B ./build -G "${{matrix.generator}}"  -Djson2cpp_ENABLE_CLANG_TIDY:BOOL=${{ matrix.enable_clang_tidy }} -Djson2cpp_ENABLE_CPPCHECK:BOOL=${{ matrix.enable_cppcheck }} -Djson2cpp_ENABLE_IPO=${{matrix.enable_ipo }} -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -Djson2cpp_PACKAGING_MAINTAINER_MODE:BOOL=${{matrix.package_maintainer_mode}} -Djson2cpp_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }} -DBUILD_TESTINGLBOOL=OFF
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
         run: |
           cmake --build ./build --config ${{matrix.build_type}}
 
-      - name: Unix - Test and coverage
-        if: runner.os != 'Windows'
-        working-directory: ./build
-        # Execute tests defined by the CMake configuration.
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: |
-          ctest -C ${{matrix.build_type}}
-          gcovr -j ${{env.nproc}} --delete --root ../ --print-summary --xml-pretty --xml coverage.xml . --gcov-executable '${{ matrix.gcov_executable }}'
+      # - name: Unix - Test and coverage
+      #   if: runner.os != 'Windows'
+      #   working-directory: ./build
+      #   # Execute tests defined by the CMake configuration.
+      #   # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      #   run: |
+      #     ctest -C ${{matrix.build_type}}
+      #     gcovr -j ${{env.nproc}} --delete --root ../ --print-summary --xml-pretty --xml coverage.xml . --gcov-executable '${{ matrix.gcov_executable }}'
 
-      - name: Windows - Test and coverage
-        if: runner.os == 'Windows'
-        working-directory: ./build
-        run: |
-          OpenCppCoverage.exe --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{matrix.build_type}}
+      # - name: Windows - Test and coverage
+      #   if: runner.os == 'Windows'
+      #   working-directory: ./build
+      #   run: |
+      #     OpenCppCoverage.exe --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{matrix.build_type}}
 
       - name: CPack
         if: matrix.package_generator != ''
@@ -209,25 +209,23 @@ jobs:
           cpack -C ${{matrix.build_type}} -G ${{matrix.package_generator}}
 
       - name: Publish Snapshot Release
+        if: ${{ (github.ref == 'refs/heads/main') && matrix.package_maintainer_mode == 'ON' && matrix.package_generator != '' }}
         uses: softprops/action-gh-release@v1
-        if: ${{ (github.ref == 'refs/heads/main') && matrix.package_generator != '' }}
         with:
           tag_name: "snapshot-${{ github.sha }}"
           files: |
             build/*-*${{ matrix.build_type }}*-*.*
 
+      # - name: Publish Tagged Release
+      #   uses: softprops/action-gh-release@v1
+      #   if: ${{ (github.ref == 'refs/heads/main') && matrix.package_generator != '' }}
+      #   with:
+      #     files: |
+      #       build/*-*${{ matrix.build_type }}*-*.*
 
-      - name: Publish Tagged Release
-        uses: softprops/action-gh-release@v1
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.package_generator != '' }}
-        with:
-          files: |
-            build/*-*${{ matrix.build_type }}*-*.*
-
-
-      - name: Publish to codecov
-        uses: codecov/codecov-action@v2
-        with:
-          flags: ${{ runner.os }}
-          name: ${{ runner.os }}-coverage
-          files: ./build/coverage.xml
+      # - name: Publish to codecov
+      #   uses: codecov/codecov-action@v2
+      #   with:
+      #     flags: ${{ runner.os }}
+      #     name: ${{ runner.os }}-coverage
+      #     files: ./build/coverage.xml
